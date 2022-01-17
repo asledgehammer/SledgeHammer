@@ -1,5 +1,10 @@
+# Hide decompiled code for legal reasons.
 craftboid/
+
+# Hide pen-testing code.
 client_testing/
+
+# Hide all build files.
 build/
 
 # IntelliJ IDEA
@@ -11,7 +16,13 @@ build/
 gradle/
 gradlew
 gradlew.bar
+gradlew.bat
 
 # Project Zomboid
-lib/**
-gradlew.bat
+lib/*.*
+
+# Craftboid exclusion
+!lib/craftboid/
+
+# Compiles JARs from Gradle subprojects.
+/bin/

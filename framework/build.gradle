@@ -1,10 +1,10 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+    id 'org.jetbrains.kotlin.jvm'
 }
 
-group 'com.asledgehammer'
-version '1.0.0'
+group project.GROUP_NAME
+version project.FRAMEWORK_VERSION
 
 configurations {
     shade
@@ -32,10 +32,16 @@ test {
 }
 
 jar {
-    baseName "Framework"
+    baseName = project.FRAMEWORK_JAR_NAME
+    version = null
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
             exclude 'META-INF', 'META-INF/**' , '**/about.html', '*/about.html', 'about.html'
         }
     }
+}
+
+task copyJarToLib(type: Copy) {
+    from './build/libs/' + project.FRAMEWORK_JAR_NAME + '.jar'
+    into '../bin/'
 }

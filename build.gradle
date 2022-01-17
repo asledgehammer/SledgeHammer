@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
+}
+
+project.ext.set('GROUP_NAME', 'com.asledgehammer')
+project.ext.set('PZ_VERSION', '41.65')
+
+project.ext.set('CRAFTBOID_VERSION', '1.0.0')
+project.ext.set('CRAFTBOID_JAR_NAME', 'Craftboid_PZ-' + project.PZ_VERSION + '_' + project.CRAFTBOID_VERSION)
+
+project.ext.set('FRAMEWORK_VERSION', '1.0.0')
+project.ext.set('FRAMEWORK_JAR_NAME', 'Framework_PZ-' + project.PZ_VERSION + '_' + project.FRAMEWORK_VERSION)
+
+project.ext.set('SLEDGEHAMMER_VERSION', '1.0.0')
+project.ext.set('SLEDGEHAMMER_JAR_NAME', 'Sledgehammer_PZ-' + project.PZ_VERSION + '_' + project.SLEDGEHAMMER_VERSION)
+
+project.ext.set('WOODGLUE_VERSION', '1.0.0')
+project.ext.set('WOODGLUE_JAR_NAME', 'WoodGlue_PZ-' + project.PZ_VERSION + '_' + project.WOODGLUE_VERSION)
+
+subprojects {
+
+    group project.GROUP_NAME
+
+    compileJava.options.encoding = 'UTF-8'
+    jar.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    configurations {
+        shade
+        compile.extendsFrom shade
+    }
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+dependencies {
+    implementation 'org.yaml:snakeyaml:1.9'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}

@@ -1,7 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.4.21'
-    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 group 'com.asledgehammer'
@@ -21,13 +20,13 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
     implementation 'org.yaml:snakeyaml:1.9'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-    compileOnly project(':craftboid')
+    compileOnly files('../lib/craftboid/' + project.CRAFTBOID_JAR_NAME + '.jar')
     compileOnly project(':framework')
 }
 
@@ -36,10 +35,16 @@ test {
 }
 
 jar {
-    baseName "Sledgehammer"
+    baseName = project.SLEDGEHAMMER_JAR_NAME
+    version = null
     configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
             exclude 'META-INF', 'META-INF/**' , '**/about.html', '*/about.html', 'about.html'
         }
     }
+}
+
+task copyJarToLib(type: Copy) {
+    from 'build/libs/' + project.SLEDGEHAMMER_JAR_NAME + '.jar'
+    into '../bin/'
 }

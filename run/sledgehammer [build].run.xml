@@ -4,14 +4,24 @@
       <option name="executionName" />
       <option name="externalProjectPath" value="$PROJECT_DIR$" />
       <option name="externalSystemIdString" value="GRADLE" />
-      <option name="scriptParameters" value="--rerun-tasks" />
+      <option name="scriptParameters" value="--rerun-tasks --rerun-tasks --rerun-tasks --rerun-tasks --rerun-tasks --rerun-tasks --rerun-tasks --rerun-tasks" />
       <option name="taskDescriptions">
         <list />
       </option>
       <option name="taskNames">
         <list>
-          <option value="build" />
-          <option value="jar" />
+          <option value="craftboid:build" />
+          <option value="craftboid:jar" />
+          <option value="craftboid:copyJarToLib" />
+          <option value="framework:build" />
+          <option value="framework:jar" />
+          <option value="framework:copyJarToLib" />
+          <option value="sledgehammer:build" />
+          <option value="sledgehammer:jar" />
+          <option value="sledgehammer:copyJarToLib" />
+          <option value="woodglue:build" />
+          <option value="woodglue:jar" />
+          <option value="woodglue:copyJarToLib" />
         </list>
       </option>
       <option name="vmOptions" />
