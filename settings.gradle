@@ -1,10 +1,11 @@
 rootProject.name = 'sledgehammer'
-include 'craftboid'
-include 'framework'
-include 'sledgehammer'
-include 'woodglue'
+
+// Private repository apart from main project. (Legal reasons)
+include ':craftboid'
 
 // Used for Pen-Testing
-include 'client_testing'
+include ':craftboid:client_testing'
 
-def PZ_VERSION = '41.65'
+include ':framework'
+include ':sledgehammer'
+include ':woodglue'

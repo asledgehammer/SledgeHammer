@@ -1,9 +1,6 @@
 # Hide decompiled code for legal reasons.
 craftboid/
 
-# Hide pen-testing code.
-client_testing/
-
 # Hide all build files.
 build/
 
