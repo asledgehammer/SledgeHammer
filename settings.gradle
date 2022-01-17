@@ -1,0 +1,8 @@
+rootProject.name = 'sledgehammer'
+include 'craftboid'
+include 'framework'
+include 'sledgehammer'
+include 'woodglue'
+
+// Used for Pen-Testing
+include 'client_testing'

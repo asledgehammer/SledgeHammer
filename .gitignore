@@ -1,0 +1,17 @@
+craftboid/
+client_testing/
+build/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Gradle
+.gradle/
+gradle/
+gradlew
+gradlew.bar
+
+# Project Zomboid
+lib/**
+gradlew.bat
