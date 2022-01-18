@@ -20,6 +20,10 @@ project.ext.set('WOODGLUE_JAR_NAME', 'WoodGlue_PZ-' + project.PZ_VERSION + '_' +
 
 subprojects {
 
+    apply plugin: 'java'
+    sourceCompatibility = 1.14
+    targetCompatibility = 1.14
+
     group project.GROUP_NAME
 
     compileJava.options.encoding = 'UTF-8'
