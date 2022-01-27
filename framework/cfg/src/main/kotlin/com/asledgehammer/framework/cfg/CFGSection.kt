@@ -490,6 +490,28 @@ open class CFGSection internal constructor(val name: String) {
      */
     fun getList(query: String): List<*> = get(query, List::class.java)
 
+    /**
+     * Clears the section of all children and fields.
+     */
+    fun clear() {
+        clearChildren()
+        clearFields()
+    }
+
+    /**
+     * Clears the section of all children.
+     */
+    fun clearChildren() {
+        children.clear()
+    }
+
+    /**
+     * Clears the section of all non-child fields.
+     */
+    fun clearFields() {
+        fields.clear()
+    }
+
     companion object {
 
         /**
