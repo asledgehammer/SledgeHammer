@@ -12,6 +12,9 @@ project.ext.set('CRAFTBOID_JAR_NAME', 'Craftboid_PZ-' + project.PZ_VERSION + '_'
 project.ext.set('FRAMEWORK_VERSION', '1.0.0')
 project.ext.set('FRAMEWORK_JAR_NAME', 'Framework_PZ-' + project.PZ_VERSION + '_' + project.FRAMEWORK_VERSION)
 
+project.ext.set('FRAMEWORK_CFG_VERSION', '1.0.0')
+project.ext.set('FRAMEWORK_CFG_JAR_NAME', 'Framework_CFG_PZ-' + project.PZ_VERSION + '_' + project.FRAMEWORK_VERSION)
+
 project.ext.set('SLEDGEHAMMER_VERSION', '1.0.0')
 project.ext.set('SLEDGEHAMMER_JAR_NAME', 'Sledgehammer_PZ-' + project.PZ_VERSION + '_' + project.SLEDGEHAMMER_VERSION)
 

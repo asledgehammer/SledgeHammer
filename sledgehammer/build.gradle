@@ -28,6 +28,7 @@ dependencies {
 
     compileOnly files('../lib/craftboid/' + project.CRAFTBOID_JAR_NAME + '.jar')
     compileOnly project(':framework')
+    compileOnly project(':framework:cfg')
 }
 
 test {

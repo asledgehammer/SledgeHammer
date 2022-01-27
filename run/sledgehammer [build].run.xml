@@ -10,6 +10,9 @@
       </option>
       <option name="taskNames">
         <list>
+          <option value="framework:cfg:build" />
+          <option value="framework:cfg:jar" />
+          <option value="framework:copyJarToLib" />
           <option value="craftboid:build" />
           <option value="craftboid:jar" />
           <option value="craftboid:copyJarToLib" />
