@@ -24,6 +24,11 @@ class YamlFile(file: File? = null) : CFGFile(file) {
         return this
     }
 
+    fun read(yaml: String): CFGFile {
+        read(YamlFile.yaml.load(yaml) as Map<String, Any>);
+        return this
+    }
+
     /**
      * Writes the section to a YAML file.
      *
