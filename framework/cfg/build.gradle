@@ -39,6 +39,6 @@ jar {
 }
 
 task copyJarToLib(type: Copy) {
-    from './build/libs/' + project.FRAMEWORK_JAR_NAME + '.jar'
-    into '../bin/'
+    from './build/libs/' + project.FRAMEWORK_CFG_JAR_NAME + '.jar'
+    into '../../bin/'
 }

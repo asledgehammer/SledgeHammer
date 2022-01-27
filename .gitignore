@@ -23,3 +23,7 @@ lib/*.*
 
 # Compiles JARs from Gradle subprojects.
 /bin/
+
+# All distributed class files goes here.
+_dist/client
+_dist/server
