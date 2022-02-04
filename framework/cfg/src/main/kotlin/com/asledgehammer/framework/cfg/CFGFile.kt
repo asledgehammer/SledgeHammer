@@ -9,4 +9,4 @@ import java.io.File
  *
  * @author Jab
  */
-open class CFGFile(val file: File?) : CFGSection("")
+open class CFGFile(var file: File?) : CFGSection("")

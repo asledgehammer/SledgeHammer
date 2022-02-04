@@ -7,11 +7,19 @@ import java.io.*
 class YamlFile(file: File? = null) : CFGFile(file) {
 
     /**
+     * Parse and read from the YAML file.
+     */
+    fun read(): CFGFile = read(FileInputStream(file))
+
+    /**
      * Parse and read from a YAML file.
      *
      * @param file The file to process.
      */
-    fun read(): CFGFile = read(FileInputStream(file))
+    fun read(file: File) {
+        this.file = file;
+        read();
+    }
 
     /**
      * Parse and read from a InputStream.
@@ -21,11 +29,6 @@ class YamlFile(file: File? = null) : CFGFile(file) {
     fun read(inputStream: InputStream): CFGFile {
         @Suppress("UNCHECKED_CAST")
         read(yaml.load(inputStream) as Map<String, Any>)
-        return this
-    }
-
-    fun read(yaml: String): CFGFile {
-        read(YamlFile.yaml.load(yaml) as Map<String, Any>);
         return this
     }
 
