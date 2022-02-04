@@ -6,7 +6,7 @@ plugins {
 project.ext.set('GROUP_NAME', 'com.asledgehammer')
 project.ext.set('PZ_VERSION', '41.65')
 
-project.ext.set('CRAFTBOID_VERSION', '1.0.4_02')
+project.ext.set('CRAFTBOID_VERSION', '1.0.5_BETA_2')
 project.ext.set('CRAFTBOID_JAR_NAME', 'Craftboid_PZ-' + project.PZ_VERSION + '_' + project.CRAFTBOID_VERSION)
 
 project.ext.set('FRAMEWORK_VERSION', '1.0.0')

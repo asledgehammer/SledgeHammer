@@ -1,4 +1,5 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'java'
     id 'org.jetbrains.kotlin.jvm'
 }
@@ -20,8 +21,8 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.yaml:snakeyaml:1.9'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    shade 'org.yaml:snakeyaml:1.9'
+    shade "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 test {

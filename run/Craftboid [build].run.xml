@@ -14,6 +14,7 @@
           <option value="framework:cfg:jar" />
           <option value="framework:cfg:copyJarToLib" />
           <option value="craftboid:compileJava" />
+          <option value="craftboid:compileJava" />
           <option value="craftboid:jar" />
           <option value="craftboid:copyJarToLib" />
           <option value="craftboid:copyDependencies" />
@@ -21,6 +22,7 @@
           <option value="craftboid:copyDependenciesToDist" />
           <option value="craftboid:extractFrameworkCfg" />
           <option value="craftboid:copyClassToDist" />
+          <option value="craftboid:copyResourcesToDist" />
         </list>
       </option>
       <option name="vmOptions" />
