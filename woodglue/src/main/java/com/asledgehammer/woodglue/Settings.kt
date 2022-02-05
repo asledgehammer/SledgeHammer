@@ -28,6 +28,8 @@ object Settings {
   var copyMediaDir: Boolean = true
     private set
 
+  val patches = ArrayList<String>()
+
   /**
    * @return Returns the global instance of Yaml.
    */
@@ -87,6 +89,13 @@ object Settings {
       this.copyMediaDir = oCopyMediaFolder as Boolean
     } else {
       setCopyMediaDir(requestCopyMediaDir(), true)
+    }
+
+    val oPatches =
+      map["patches"] as List<*>? ?: throw YAMLException("The list 'patches' is not defined in 'woodglue.yml")
+
+    for (o in oPatches) {
+      patches.add(o.toString())
     }
   }
 

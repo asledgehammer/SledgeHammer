@@ -36,6 +36,8 @@ test {
 
 jar {
 
+    doFirst {buildWoodGlueYaml}
+
     baseName = project.WOODGLUE_JAR_NAME
     version = null
     manifest {
@@ -57,4 +59,23 @@ jar {
 task copyJarToBin(type: Copy) {
     from 'build/libs/' + project.WOODGLUE_JAR_NAME + '.jar'
     into '../bin/'
+}
+
+task buildWoodGlueYaml() {
+    new File(projectDir, 'src/main/resources/woodglue.yml').text = """
+# Directory for the "ProjectZomboid Dedicated Server" installation.
+pz_server_dir: null
+
+# If true, WoodGlue will check and clone the media folder from the PZ installation.
+copy_media_dir: false
+
+# Which patches to load. 
+#
+#  Note: The first patch to load is the one overwriting 
+#        anything loaded after. (PZ is loaded last)
+patches:
+- ${project.SLEDGEHAMMER_JAR_NAME}
+- ${project.CRAFTBOID_JAR_NAME}
+
+"""
 }

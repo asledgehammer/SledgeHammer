@@ -7,13 +7,12 @@ import java.nio.file.FileAlreadyExistsException
 import java.nio.file.Files
 import java.util.jar.JarFile
 
-
 class WoodGlue(inst: Instrumentation) {
 
   private lateinit var pzPath: String
   private lateinit var pzDir: File
   private val dirLib = File("lib/")
-  private val dirLibAsledgehammer = File("lib/asledgehammer/")
+  private val dirLibPatches = File("lib/patches/")
   private val dirLibBuilt = File("lib/built/")
   private val dirLibNatives = File("lib/natives/")
   private val dirPlugins = File("plugins/")
@@ -22,8 +21,8 @@ class WoodGlue(inst: Instrumentation) {
     createDirs()
     loadSettings()
     copyPZFiles()
-    injectJars(inst, dirLib)
-    injectJars(inst, dirLibAsledgehammer, arrayOf("woodglue"))
+    injectJars(inst, dirLib, arrayOf("woodglue"))
+    injectPatches(inst, dirLibPatches, Settings.patches)
     // Do this last so Craftboid classes takes priority.
     injectJars(inst, dirLibBuilt)
   }
@@ -77,7 +76,7 @@ class WoodGlue(inst: Instrumentation) {
 
   private fun createDirs() {
     if (dirLib.mkdirs()) log("Created: ./${dirLib.path}")
-    if (dirLibAsledgehammer.mkdirs()) log("Created: ./${dirLibAsledgehammer.path}")
+    if (dirLibPatches.mkdirs()) log("Created: ./${dirLibPatches.path}")
     if (dirLibBuilt.mkdirs()) log("Created: ./${dirLibBuilt.path}")
     if (dirLibNatives.mkdirs()) log("Created: ./${dirLibNatives.path}")
     if (dirPlugins.mkdirs()) log("Created: ./${dirPlugins.path}")
@@ -92,9 +91,6 @@ class WoodGlue(inst: Instrumentation) {
     pzPath = pzPath.replace("\\", "/")
     if (pzPath.endsWith("/")) pzPath = pzPath.substring(0, pzPath.length - 1)
     pzDir = File(pzPath)
-
-    // Tell the console the registered PZ directory.
-    log("ProjectZomboid Dedicated Server Directory: ${this.pzPath}")
   }
 
   private fun packPZCode() {
@@ -113,6 +109,7 @@ class WoodGlue(inst: Instrumentation) {
         File("$classDir/zombie")
       )
 
+      log("Packing PZ Code: ${npzJar.name}..")
       createJarArchive(npzJar, classDirectories, "zombie.network.GameServer")
     }
   }
@@ -139,6 +136,18 @@ class WoodGlue(inst: Instrumentation) {
             e.printStackTrace()
           }
         }
+      }
+    }
+  }
+
+  private fun injectPatches(inst: Instrumentation, dir: File, jars: ArrayList<String>) {
+    for (jarName in jars) {
+      val jarFile = File(dir, "$jarName.jar")
+      try {
+        log("Injecting patch: ${jarFile.name}..")
+        inst.appendToSystemClassLoaderSearch(JarFile(jarFile))
+      } catch (e: IOException) {
+        e.printStackTrace()
       }
     }
   }
