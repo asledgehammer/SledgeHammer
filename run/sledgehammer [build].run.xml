@@ -10,12 +10,10 @@
       </option>
       <option name="taskNames">
         <list>
+          <option value="craftboid:copyJarToBin" />
           <option value="framework:cfg:build" />
           <option value="framework:cfg:jar" />
           <option value="framework:cfg:copyJarToLib" />
-          <option value="craftboid:build" />
-          <option value="craftboid:jar" />
-          <option value="craftboid:copyJarToLib" />
           <option value="framework:build" />
           <option value="framework:jar" />
           <option value="framework:copyJarToLib" />
@@ -24,7 +22,7 @@
           <option value="sledgehammer:copyJarToLib" />
           <option value="woodglue:build" />
           <option value="woodglue:jar" />
-          <option value="woodglue:copyJarToLib" />
+          <option value="woodglue:copyJarToBin" />
         </list>
       </option>
       <option name="vmOptions" />
