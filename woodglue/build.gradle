@@ -23,8 +23,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 
-    implementation 'org.yaml:snakeyaml:1.9'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    shade 'org.yaml:snakeyaml:1.9'
+    shade "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     compileOnly project(':craftboid')
     compileOnly project(':sledgehammer')
@@ -40,6 +40,7 @@ jar {
     version = null
     manifest {
         attributes(
+                "Main-Class": "com.asledgehammer.woodglue.Main",
                 "Premain-Class": "com.asledgehammer.woodglue.Agent",
                 "Can-Redefine-Classes": true,
                 "Can-Set-Native-Method-Prefix": true
@@ -53,7 +54,7 @@ jar {
     }
 }
 
-task copyJarToLib(type: Copy) {
+task copyJarToBin(type: Copy) {
     from 'build/libs/' + project.WOODGLUE_JAR_NAME + '.jar'
     into '../bin/'
 }

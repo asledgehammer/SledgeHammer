@@ -1,9 +1,11 @@
-package jab.sledgehammer.util
+package com.asledgehammer.woodglue.util
 
+import com.asledgehammer.woodglue.WoodGlue
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.*
+import java.util.jar.Attributes
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 import java.util.jar.Manifest
@@ -18,18 +20,23 @@ object CreateJarFile {
 
     var BUFFER_SIZE = 10240
 
-    fun createJarArchive(archiveFile: File, directories: Array<File>, additionalFiles: Array<File>) {
+    fun createJarArchive(archiveFile: File, directories: Array<File>, mainClass: String? = null) {
         try {
+            val manifest = Manifest()
+            if(mainClass != null) {
+                manifest.mainAttributes[Attributes.Name.MAIN_CLASS] = mainClass
+            }
+
             val buffer = ByteArray(BUFFER_SIZE)
             // Open archive file
             val stream = FileOutputStream(archiveFile)
-            val out = JarOutputStream(stream, Manifest())
+            val out = JarOutputStream(stream, manifest)
             for (directory in directories) {
                 val files = getFiles(directory, ".class")
                 val split = directory.name
                 for (file in files) {
                     val path = getJarPath(file, split)
-                    println("Craftboid: Copied ${file.name}")
+                    WoodGlue.log("Copied ${file.name}")
                     // Add archive entry
                     val jarAdd = JarEntry("$split/$path")
                     jarAdd.time = file.lastModified()
@@ -47,24 +54,6 @@ object CreateJarFile {
                     }
                     inputStream.close()
                 }
-            }
-            for (file in additionalFiles) {
-                val path = file.name
-                val jarAdd = JarEntry(path)
-                jarAdd.time = file.lastModified()
-                try {
-                    out.putNextEntry(jarAdd)
-                } catch (e: ZipException) {
-                    continue
-                }
-                // Write file to archive
-                val inputStream = FileInputStream(file)
-                while (true) {
-                    val nRead = inputStream.read(buffer, 0, buffer.size)
-                    if (nRead <= 0) break
-                    out.write(buffer, 0, nRead)
-                }
-                inputStream.close()
             }
             out.close()
             stream.close()

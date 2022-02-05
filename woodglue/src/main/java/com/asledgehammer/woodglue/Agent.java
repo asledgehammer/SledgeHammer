@@ -16,6 +16,6 @@ public class Agent {
    * @param inst The Java Instrumentation Object passed to the pre-main Agent exclusively.
    */
   public static void premain(String args, Instrumentation inst) {
-    new WoodGlue(args, inst);
+    new WoodGlue(inst);
   }
 }

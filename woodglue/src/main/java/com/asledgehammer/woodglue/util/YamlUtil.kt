@@ -1,4 +1,4 @@
-package jab.sledgehammer.util
+package com.asledgehammer.woodglue.util
 
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.DumperOptions.ScalarStyle
