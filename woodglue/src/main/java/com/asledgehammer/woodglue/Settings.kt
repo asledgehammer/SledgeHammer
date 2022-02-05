@@ -1,14 +1,13 @@
+@file:Suppress("SameParameterValue")
+
 package com.asledgehammer.woodglue
 
-import com.asledgehammer.woodglue.util.YamlUtil
+import org.yaml.snakeyaml.DumperOptions
+import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.error.YAMLException
 import java.io.*
 import java.net.URL
 import java.util.*
-
-const val fileName = "woodglue.yml"
-private val fileConfig: File = File(fileName)
-private val NEW_LINE = System.getProperty("line.separator")
 
 /**
  * Class to load and manage the settings for the Sledgehammer engine.
@@ -17,20 +16,35 @@ private val NEW_LINE = System.getProperty("line.separator")
  */
 object Settings {
 
+  private val NEW_LINE = System.getProperty("line.separator")
+  private const val fileName = "woodglue.yml"
+  private val fileConfig: File = File(fileName)
+
   private lateinit var map: Map<*, *>
 
-  /**
-   * The set directory to the vanilla distribution installation of the ProjectZomboid Dedicated
-   * Server.
-   */
   var pZServerDirectory: String? = null
     private set
 
+  var copyMediaDir: Boolean = true
+    private set
+
+  /**
+   * @return Returns the global instance of Yaml.
+   */
+  private val yaml: Yaml
+
   init {
+
+    val options = DumperOptions()
+    options.defaultFlowStyle = DumperOptions.FlowStyle.BLOCK
+    options.defaultScalarStyle = DumperOptions.ScalarStyle.LITERAL
+    yaml = Yaml(options)
+
     if (!fileConfig.exists()) {
       saveDefaultConfig()
       try {
         setDir(requestDir(), true)
+        setCopyMediaDir(requestCopyMediaDir(), true)
       } catch (e: Exception) {
         e.printStackTrace()
       }
@@ -44,7 +58,7 @@ object Settings {
   private fun loadConfig() {
     try {
       val fis = FileInputStream(fileConfig)
-      map = YamlUtil.yaml.load(fis) as Map<*, *>
+      map = yaml.load(fis) as Map<*, *>
       fis.close()
       parseConfig()
     } catch (e: YAMLException) {
@@ -61,12 +75,19 @@ object Settings {
    * Parses and interprets the YAML setting sections.
    */
   private fun parseConfig() {
-    val oPZServerDirectory = map["pz_server_directory"]
+    val oPZServerDirectory = map["pz_server_dir"]
     if (oPZServerDirectory != null) {
       val s = oPZServerDirectory.toString()
       if (s.isNotEmpty()) setDir(s, false)
       else setDir(requestDir(), true)
     } else setDir(requestDir(), true)
+
+    val oCopyMediaFolder = map["copy_media_dir"]
+    if (oCopyMediaFolder != null) {
+      this.copyMediaDir = oCopyMediaFolder as Boolean
+    } else {
+      setCopyMediaDir(requestCopyMediaDir(), true)
+    }
   }
 
   /**
@@ -86,9 +107,31 @@ object Settings {
         val interpreted = line.trim { it <= ' ' }
         if (interpreted.startsWith("#")) continue
         val spaces = getLeadingSpaceCount(line)
-        if (interpreted.startsWith("pz_server_directory:")) {
-          val newLine = getSpaces(spaces) + "pz_server_directory: '" + pzServerDirectory + "'"
+        if (interpreted.startsWith("pz_server_dir:")) {
+          val newLine = getSpaces(spaces) + "pz_server_dir: '" + pzServerDirectory + "'"
           lines[index] = newLine
+          break
+        }
+      }
+      writeConfigFile(lines)
+    }
+  }
+
+  private fun setCopyMediaDir(flag: Boolean, save: Boolean) {
+
+    copyMediaDir = flag
+
+    if (save) {
+      val lines = readConfigFile()
+      for (index in lines.indices) {
+        val line = lines[index]
+        val interpreted = line.trim { it <= ' ' }
+        if (interpreted.startsWith("#")) continue
+        val spaces = getLeadingSpaceCount(line)
+        if (interpreted.startsWith("copy_media_dir:")) {
+          val newLine = getSpaces(spaces) + "copy_media_dir: $flag"
+          lines[index] = newLine
+          break
         }
       }
       writeConfigFile(lines)
@@ -121,110 +164,6 @@ object Settings {
   }
 
   /**
-   * Writes the config.yml File with a List of lines.
-   *
-   * @param lines The List of lines to save.
-   */
-  private fun writeConfigFile(lines: List<String>) {
-    try {
-      val fw = FileWriter(fileName)
-      val bw = BufferedWriter(fw)
-      for (line in lines) bw.write(line + NEW_LINE)
-      bw.close()
-      fw.close()
-    } catch (e: IOException) {
-      System.err.println("Failed to save $fileName")
-      e.printStackTrace()
-    }
-  }
-
-  /**
-   * @param length The count of spaces to add to the returned String.
-   * @return Returns a valid YAML character sequence of spaces as a String.
-   */
-  private fun getSpaces(length: Int): String {
-    require(length >= 0) { "length given is less than 0." }
-    val string = StringBuilder()
-    for (index in 0 until length) string.append(" ")
-    return string.toString()
-  }
-
-  /**
-   * @param string The String being interpreted.
-   * @return Returns the count of spaces in front of any text in the given line.
-   */
-  private fun getLeadingSpaceCount(string: String?): Int {
-    requireNotNull(string) { "String given is null." }
-    if (string.isEmpty()) return 0
-    var spaces = 0
-    val chars = string.toCharArray()
-    for (c in chars) {
-      if (c != ' ') break
-      spaces++
-    }
-    return spaces
-  }
-
-  /**
-   * @return Returns input from the console.
-   */
-  private fun requestDir(): String {
-
-    var pzDirectory: String? = null
-
-    var input: String
-
-    // Cannot close this. It closes the System.in entirely.
-    val scanner = Scanner(System.`in`)
-
-    while (pzDirectory == null) {
-
-      WoodGlue.log("Please enter the directory for the Project Zomboid Dedicated Server:")
-
-      input = scanner.nextLine()
-      input = input.replace("\\", "/")
-      if (!input.endsWith("/")) input += "/"
-
-      val directory = File(input)
-
-      if (directory.exists() && directory.isDirectory) {
-
-        val zombieDirectory = File(input + File.separator + "java" + File.separator + "zombie")
-        if (zombieDirectory.exists() && zombieDirectory.isDirectory) {
-          pzDirectory = input
-        } else {
-          WoodGlue.log("This is a directory, but it does not contain Project Zomboid files.")
-        }
-
-      } else {
-        WoodGlue.log("This is not a valid directory.")
-      }
-    }
-
-    WoodGlue.log("Set directory.")
-    return pzDirectory.replace("\\", "/")
-  }
-
-  /**
-   * Saves the template of the config.yml in the Sledgehammer.jar to the server folder.
-   */
-  private fun saveDefaultConfig() {
-    val file = File(Settings::class.java.protectionDomain.codeSource.location.toURI().path)
-    write(file, fileName, File(fileName))
-  }
-
-  /**
-   * @param jar The File Object of the Jar File.
-   * @param source The source path inside the Jar File.
-   * @return Returns an InputStream of the Jar File Entry.
-   * @throws IOException Thrown with File Exceptions.
-   */
-  @Throws(IOException::class)
-  private fun getStream(jar: File, source: String): InputStream {
-    return URL("jar:file:" + jar.absolutePath + "!/" + source).openStream()
-  }
-
-  /**
    * Writes a Jar File Entry to the given destination File.
    *
    * @param jar The File Object of the Jar File.
@@ -246,5 +185,109 @@ object Settings {
     } catch (e: Exception) {
       e.printStackTrace()
     }
+  }
+
+  private fun requestDir(): String {
+    var pzDirectory: String? = null
+    var input: String
+    val scanner = Scanner(System.`in`)
+    while (pzDirectory == null) {
+      WoodGlue.log("Please enter the directory for the Project Zomboid Dedicated Server:")
+      input = scanner.nextLine()
+      input = input.replace("\\", "/")
+      if (!input.endsWith("/")) input += "/"
+      val directory = File(input)
+      if (directory.exists() && directory.isDirectory) {
+        val zombieDirectory = File(input + File.separator + "java" + File.separator + "zombie")
+        if (zombieDirectory.exists() && zombieDirectory.isDirectory) {
+          pzDirectory = input
+        } else {
+          WoodGlue.log("This is a directory, but it does not contain Project Zomboid files.")
+        }
+      } else {
+        WoodGlue.log("Not a valid directory.")
+      }
+    }
+    return pzDirectory.replace("\\", "/")
+  }
+
+  private fun requestCopyMediaDir(): Boolean {
+    var i: String
+    val scanner = Scanner(System.`in`)
+    var valid = false
+    while (!valid) {
+      WoodGlue.log("Copy media directory? (y)")
+      i = scanner.nextLine().toLowerCase()
+      if (i.isEmpty()) i = "y"
+      if (i == "y" || i == "n" || i == "yes" || i == "no") {
+        copyMediaDir = i == "y" || i == "yes"
+        valid = true
+      }
+    }
+    return copyMediaDir
+  }
+
+  /**
+   * Writes the config.yml File with a List of lines.
+   *
+   * @param lines The List of lines to save.
+   */
+  private fun writeConfigFile(lines: List<String>) {
+    try {
+      val fw = FileWriter(fileName)
+      val bw = BufferedWriter(fw)
+      for (line in lines) bw.write(line + NEW_LINE)
+      bw.close()
+      fw.close()
+    } catch (e: IOException) {
+      System.err.println("Failed to save $fileName")
+      e.printStackTrace()
+    }
+  }
+
+  /**
+   * @param string The String being interpreted.
+   * @return Returns the count of spaces in front of any text in the given line.
+   */
+  private fun getLeadingSpaceCount(string: String?): Int {
+    requireNotNull(string) { "String given is null." }
+    if (string.isEmpty()) return 0
+    var spaces = 0
+    val chars = string.toCharArray()
+    for (c in chars) {
+      if (c != ' ') break
+      spaces++
+    }
+    return spaces
+  }
+
+  /**
+   * @param length The count of spaces to add to the returned String.
+   * @return Returns a valid YAML character sequence of spaces as a String.
+   */
+  private fun getSpaces(length: Int): String {
+    require(length >= 0) { "length given is less than 0." }
+    val string = StringBuilder()
+    for (index in 0 until length) string.append(" ")
+    return string.toString()
+  }
+
+  /**
+   * Saves the template of the config.yml in the Sledgehammer.jar to the server folder.
+   */
+  private fun saveDefaultConfig() {
+    val file = File(Settings::class.java.protectionDomain.codeSource.location.toURI().path)
+    write(file, fileName, File(fileName))
+  }
+
+  /**
+   * @param jar The File Object of the Jar File.
+   * @param source The source path inside the Jar File.
+   * @return Returns an InputStream of the Jar File Entry.
+   * @throws IOException Thrown with File Exceptions.
+   */
+  @Throws(IOException::class)
+  private fun getStream(jar: File, source: String): InputStream {
+    return URL("jar:file:" + jar.absolutePath + "!/" + source).openStream()
   }
 }

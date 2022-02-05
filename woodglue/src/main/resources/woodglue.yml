@@ -1,2 +1,5 @@
 # Directory for the "ProjectZomboid Dedicated Server" installation.
-pz_server_directory: null
+pz_server_dir: null
+
+# If true, WoodGlue will check and clone the media folder from the PZ installation.
+copy_media_dir: true
