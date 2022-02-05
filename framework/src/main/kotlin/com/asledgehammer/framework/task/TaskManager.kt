@@ -16,6 +16,7 @@ object TaskManager {
     /**
      * TODO: Document.
      */
+    @JvmStatic
     fun tick() {
         if (tasks.isNotEmpty()) {
             for ((_, tasks) in tasks) {
@@ -42,6 +43,7 @@ object TaskManager {
     /**
      * TODO: Document.
      */
+    @JvmStatic
     fun register(id: UUID, delayedTask: DelayedTask) {
         tasks.computeIfAbsent(id) { ArrayList() }.add(delayedTask)
     }
@@ -49,6 +51,7 @@ object TaskManager {
     /**
      * TODO: Document.
      */
+    @JvmStatic
     fun unregister(id: UUID) {
         tasks.remove(id)
     }
