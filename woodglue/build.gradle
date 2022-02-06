@@ -71,8 +71,8 @@ copy_media_dir: false
 
 # Which patches to load. 
 #
-#  Note: The first patch to load is the one overwriting 
-#        anything loaded after. (PZ is loaded last)
+#  Note: The first patch to load is the one overwriting anything loaded after. 
+#        (PZ is loaded last)
 patches:
 - ${project.SLEDGEHAMMER_JAR_NAME}
 - ${project.CRAFTBOID_JAR_NAME}

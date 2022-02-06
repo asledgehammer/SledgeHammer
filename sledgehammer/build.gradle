@@ -27,8 +27,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     compileOnly files('../lib/craftboid/' + project.CRAFTBOID_JAR_NAME + '.jar')
-    compileOnly project(':framework')
-    compileOnly project(':framework:cfg')
+    compileOnly project(':cfg')
 }
 
 test {

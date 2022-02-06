@@ -11,12 +11,6 @@
       <option name="taskNames">
         <list>
           <option value="craftboid:copyJarToBin" />
-          <option value="framework:cfg:build" />
-          <option value="framework:cfg:jar" />
-          <option value="framework:cfg:copyJarToLib" />
-          <option value="framework:build" />
-          <option value="framework:jar" />
-          <option value="framework:copyJarToLib" />
           <option value="sledgehammer:build" />
           <option value="sledgehammer:jar" />
           <option value="sledgehammer:copyJarToLib" />

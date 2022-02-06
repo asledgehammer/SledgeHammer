@@ -10,9 +10,9 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="framework:cfg:compileKotlin" />
-          <option value="framework:cfg:jar" />
-          <option value="framework:cfg:copyJarToLib" />
+          <option value="cfg:compileKotlin" />
+          <option value="cfg:jar" />
+          <option value="cfg:copyJarToBin" />
           <option value="craftboid:compileJava" />
           <option value="craftboid:compileJava" />
           <option value="craftboid:jar" />
@@ -23,6 +23,7 @@
           <option value="craftboid:extractFrameworkCfg" />
           <option value="craftboid:copyClassToDist" />
           <option value="craftboid:copyResourcesToDist" />
+          <option value="craftboid:copyJarToBin" />
         </list>
       </option>
       <option name="vmOptions" />

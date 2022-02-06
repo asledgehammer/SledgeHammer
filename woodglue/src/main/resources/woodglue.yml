@@ -7,8 +7,8 @@ copy_media_dir: false
 
 # Which patches to load. 
 #
-#  Note: The first patch to load is the one overwriting 
-#        anything loaded after. (PZ is loaded last)
+#  Note: The first patch to load is the one overwriting anything loaded after. 
+#        (PZ is loaded last)
 patches:
 - Sledgehammer_PZ-41.65_1.0.0
 - Craftboid_PZ-41.65_1.0.5_BETA_2
