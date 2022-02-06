@@ -93,7 +93,7 @@ object Plugins {
   @JvmStatic
   fun disable() {
     for (plugin in pluginsStarted) {
-      println("Stopping ${plugin.properties.name}'s module(s):")
+      Sledgehammer.log("Stopping ${plugin.properties.name}'s module(s):")
       plugin.stopModules()
       pluginsToUnload.add(plugin)
     }
@@ -104,7 +104,7 @@ object Plugins {
   @JvmStatic
   fun unload() {
     for (plugin in pluginsToUnload) {
-      println("Unloading ${plugin.properties.name}'s module(s):")
+      Sledgehammer.log("Unloading ${plugin.properties.name}'s module(s):")
       plugin.unloadModules()
     }
     pluginsToUnload.clear()
