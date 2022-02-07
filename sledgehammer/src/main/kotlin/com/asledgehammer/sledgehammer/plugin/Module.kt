@@ -33,7 +33,7 @@ open class Module {
     internal set
 
   /** TODO: Document. */
-  var started: Boolean = false
+  var enabled: Boolean = false
     internal set
 
   /**
@@ -45,20 +45,19 @@ open class Module {
       loaded = true
       return true
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to load module.")
+      Sledgehammer.logError("Failed to load module.", e)
       loaded = false
-      e.printStackTrace()
     }
     return false
   }
 
   /** TODO: Document. */
-  internal fun start() {
-    if (!started) {
-      onStart()
-      started = true
+  internal fun enable() {
+    if (!enabled) {
+      onEnable()
+      enabled = true
     } else {
-      Sledgehammer.logError("Module is already started.")
+      Sledgehammer.logError("Module is already enabled.")
     }
   }
 
@@ -67,8 +66,8 @@ open class Module {
    *
    * @param delta The latency in milliseconds since the last tick.
    */
-  internal fun update(delta: Long) {
-    if (started) onUpdate(delta)
+  internal fun tick(delta: Long) {
+    if (enabled) onTick(delta)
   }
 
   /**
@@ -76,18 +75,17 @@ open class Module {
    *
    * @return Returns true if the Module stopped successfully.
    */
-  internal fun stop(): Boolean {
+  internal fun disable(): Boolean {
     if (loaded) {
       try {
-        if (started) {
-          this.onStop()
-          started = false
+        if (enabled) {
+          this.onDisable()
+          enabled = false
         } else {
-          Sledgehammer.logError("Module is already stopped.")
+          Sledgehammer.logError("Module is not enabled.")
         }
       } catch (e: Exception) {
-        Sledgehammer.logError("Failed to safely stop module.")
-        e.printStackTrace()
+        Sledgehammer.logError("Failed to safely disable module.", e)
       }
     }
     return true
@@ -105,8 +103,7 @@ open class Module {
         this.loaded = false
       }
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to safely unload module.")
-      e.printStackTrace()
+      Sledgehammer.logError("Failed to safely unload module.", e)
     }
     return true
   }
@@ -114,18 +111,18 @@ open class Module {
   /** Fired when the Module is loaded. */
   protected open fun onLoad() {}
 
-  /** Fired when the Module is started. */
-  protected open fun onStart() {}
+  /** Fired when the Module is enabled. */
+  protected open fun onEnable() {}
 
   /**
    * Fired when the Module is updated.
    *
    * @param delta The delta in milliseconds since the last update.
    */
-  protected open fun onUpdate(delta: Long) {}
+  protected open fun onTick(delta: Long) {}
 
-  /** Fired when the Module is stopped. */
-  protected open fun onStop() {}
+  /** Fired when the Module is disabled. */
+  protected open fun onDisable() {}
 
   /** Fired when the Module is unloaded. */
   protected open fun onUnload() {}

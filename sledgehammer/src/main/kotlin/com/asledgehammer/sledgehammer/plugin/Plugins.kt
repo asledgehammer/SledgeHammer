@@ -19,8 +19,8 @@ object Plugins {
   var directory: File = File("plugins${File.separator}")
 
   private val pluginsToLoad = ArrayList<Plugin>()
-  private val pluginsToStart = ArrayList<Plugin>()
-  private val pluginsStarted = ArrayList<Plugin>()
+  private val pluginsToEnable = ArrayList<Plugin>()
+  private val pluginsEnabled = ArrayList<Plugin>()
   private val pluginsToUnload = ArrayList<Plugin>()
   private var timeThen = 0L
 
@@ -60,7 +60,7 @@ object Plugins {
     for (plugin in pluginsToLoad) {
       Sledgehammer.log("Loading plugin ${plugin.properties.name}'s module(s):")
       plugin.load()
-      pluginsToStart.add(plugin)
+      pluginsToEnable.add(plugin)
     }
 
     pluginsToLoad.clear()
@@ -69,13 +69,13 @@ object Plugins {
   /** TODO: Document. */
   @JvmStatic
   fun enable() {
-    for (plugin in pluginsToStart) {
-      Sledgehammer.log("Starting plugin ${plugin.properties.name}'s module(s):")
-      plugin.startModules()
-      pluginsStarted.add(plugin)
+    for (plugin in pluginsToEnable) {
+      Sledgehammer.log("Enabling plugin ${plugin.properties.name}'s module(s):")
+      plugin.enableModules()
+      pluginsEnabled.add(plugin)
       plugins[plugin.properties.name] = plugin
     }
-    pluginsToStart.clear()
+    pluginsToEnable.clear()
   }
 
   /** TODO: Document. */
@@ -83,8 +83,8 @@ object Plugins {
   fun tick() {
     val timeNow = System.currentTimeMillis()
     val delta = if (timeThen != 0L) timeNow - timeThen else 0L
-    for (plugin in pluginsStarted) {
-      plugin.updateModules(delta)
+    for (plugin in pluginsEnabled) {
+      plugin.tickModules(delta)
     }
     timeThen = timeNow
   }
@@ -92,12 +92,12 @@ object Plugins {
   /** TODO: Document. */
   @JvmStatic
   fun disable() {
-    for (plugin in pluginsStarted) {
-      Sledgehammer.log("Stopping ${plugin.properties.name}'s module(s):")
-      plugin.stopModules()
+    for (plugin in pluginsEnabled) {
+      Sledgehammer.log("Disabling ${plugin.properties.name}'s module(s):")
+      plugin.disableModules()
       pluginsToUnload.add(plugin)
     }
-    pluginsStarted.clear()
+    pluginsEnabled.clear()
   }
 
   /** TODO: Document. */

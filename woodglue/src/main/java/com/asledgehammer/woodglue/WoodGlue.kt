@@ -12,9 +12,9 @@ class WoodGlue(inst: Instrumentation) {
   private lateinit var pzPath: String
   private lateinit var pzDir: File
   private val dirLib = File("lib/")
-  private val dirLibPatches = File("lib/patches/")
+  private val dirPatches = File("patches/")
   private val dirLibBuilt = File("lib/built/")
-  private val dirLibNatives = File("lib/natives/")
+  private val dirNatives = File("lib/natives/")
   private val dirPlugins = File("plugins/")
 
   init {
@@ -22,16 +22,16 @@ class WoodGlue(inst: Instrumentation) {
     loadSettings()
     copyPZFiles()
     injectJars(inst, dirLib, arrayOf("woodglue"))
-    injectPatches(inst, dirLibPatches, Settings.patches)
+    injectPatches(inst, dirPatches, Settings.patches)
     // Do this last so Craftboid classes takes priority.
     injectJars(inst, dirLibBuilt)
   }
 
   private fun copyPZFiles() {
     packPZCode()
-    copyFolder(File(pzDir, "natives"), File("lib/natives"))
-    copyFiles(File(pzDir, "java"), File("lib/"), "jar")
-    copyFiles(pzDir, File("lib/natives/"), "dll")
+    copyFolder(File(pzDir, "natives"), dirNatives)
+    copyFiles(File(pzDir, "java"), dirLib, "jar")
+    copyFiles(pzDir, dirNatives, "dll")
     copyMiscFiles()
     handleMediaFolder()
   }
@@ -76,9 +76,9 @@ class WoodGlue(inst: Instrumentation) {
 
   private fun createDirs() {
     if (dirLib.mkdirs()) log("Created: ./${dirLib.path}")
-    if (dirLibPatches.mkdirs()) log("Created: ./${dirLibPatches.path}")
+    if (dirPatches.mkdirs()) log("Created: ./${dirPatches.path}")
     if (dirLibBuilt.mkdirs()) log("Created: ./${dirLibBuilt.path}")
-    if (dirLibNatives.mkdirs()) log("Created: ./${dirLibNatives.path}")
+    if (dirNatives.mkdirs()) log("Created: ./${dirNatives.path}")
     if (dirPlugins.mkdirs()) log("Created: ./${dirPlugins.path}")
   }
 

@@ -42,6 +42,7 @@ class Sledgehammer : CraftHook() {
   override fun getId(): String = "sledgehammer"
 
   companion object {
+    /** TODO: Document. */
     @JvmStatic
     fun log(vararg objects: Any?) {
       if (objects.isEmpty()) {
@@ -57,6 +58,7 @@ class Sledgehammer : CraftHook() {
       }
     }
 
+    /** TODO: Document. */
     @JvmStatic
     fun log(list: Iterable<Any?>?) {
       if (list == null) {
@@ -72,6 +74,7 @@ class Sledgehammer : CraftHook() {
       }
     }
 
+    /** TODO: Document. */
     @JvmStatic
     @JvmOverloads
     fun logError(message: String, throwable: Throwable? = null) {
@@ -82,19 +85,14 @@ class Sledgehammer : CraftHook() {
       DebugLog.log(DebugType.Sledgehammer, "$red$message$reset")
 
       if (throwable != null) {
-        DebugLog.log(DebugType.Sledgehammer, "$red${throwable.javaClass.name}: ${throwable.message}$reset")
-        for (elm in throwable.stackTrace) {
-          DebugLog.log(DebugType.Sledgehammer, "$red at ${elm}$reset")
+
+        fun recurse(t: Throwable) {
+          DebugLog.log(DebugType.Sledgehammer, "$red${t.javaClass.name}: ${t.message}$reset")
+          for (elm in t.stackTrace) DebugLog.log(DebugType.Sledgehammer, "$red at ${elm}$reset")
+          if (t.cause != null) recurse(t.cause!!)
         }
 
-        val cause = throwable.cause
-        if (cause != null) {
-          DebugLog.log(DebugType.Sledgehammer,
-            "$red Caused by: ${throwable.javaClass.name}: ${cause.message}$reset")
-          for (elm in cause.stackTrace) {
-            DebugLog.log(DebugType.Sledgehammer, " at $red${elm}$reset")
-          }
-        }
+        recurse(throwable)
       }
     }
   }

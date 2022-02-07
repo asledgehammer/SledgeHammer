@@ -14,6 +14,9 @@
           <option value="sledgehammer:build" />
           <option value="sledgehammer:jar" />
           <option value="sledgehammer:copyJarToLib" />
+          <option value="sledgehammer:example_plugin:compileJava" />
+          <option value="sledgehammer:example_plugin:compileKotlin" />
+          <option value="sledgehammer:example_plugin:jar" />
           <option value="woodglue:build" />
           <option value="woodglue:jar" />
           <option value="woodglue:copyJarToBin" />

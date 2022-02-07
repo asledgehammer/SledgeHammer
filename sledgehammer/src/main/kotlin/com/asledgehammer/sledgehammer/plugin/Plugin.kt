@@ -4,13 +4,12 @@ package com.asledgehammer.sledgehammer.plugin
 
 import com.asledgehammer.framework.cfg.CFGSection
 import com.asledgehammer.framework.cfg.YamlFile
-import com.asledgehammer.sledgehammer.event.Events
 import com.asledgehammer.sledgehammer.Sledgehammer
+import com.asledgehammer.sledgehammer.event.Events
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.net.URL
 import java.net.URLClassLoader
 import java.util.*
 import java.util.jar.JarEntry
@@ -24,6 +23,8 @@ import java.util.jar.JarFile
  * @property file
  */
 class Plugin(private val file: File) {
+
+  val jarFile = JarFile(file)
 
   /**
    * The internal ID to use throughout the framework.
@@ -41,9 +42,9 @@ class Plugin(private val file: File) {
 
   private val modulesToLoad = ArrayList<Module>()
   private val modulesLoaded = ArrayList<Module>()
-  private val modulesToStart = ArrayList<Module>()
-  private val modulesStarted = ArrayList<Module>()
-  private val modulesStopped = ArrayList<Module>()
+  private val modulesToEnable = ArrayList<Module>()
+  private val modulesEnabled = ArrayList<Module>()
+  private val modulesDisabled = ArrayList<Module>()
   private val modulesToUnload = ArrayList<Module>()
   private val modulesUnloaded = ArrayList<Module>()
   private var classLoader = this.javaClass.classLoader
@@ -53,7 +54,7 @@ class Plugin(private val file: File) {
     // create properties.
     try {
       val inputStream: InputStream = getResource("plugin.yml")
-        ?: throw RuntimeException("plugin.yml is not found in the plugin: ${properties.name}")
+        ?: throw RuntimeException("plugin.yml is not found in the plugin: ${file.name}")
       val cfg = YamlFile(null)
       cfg.read(inputStream)
       properties = Properties(cfg)
@@ -133,14 +134,23 @@ class Plugin(private val file: File) {
    * @throws IOException Thrown when the InputStream fails to establish.
    */
   fun getResource(path: String): InputStream? {
-    return try {
-      val classLoader = this.javaClass.classLoader
-      val url: URL = classLoader.getResource(path) ?: return null
-      val connection = url.openConnection()
-      connection.useCaches = false
-      connection.getInputStream()
+    try {
+
+      val entry = this.jarFile.getEntry(path) ?: return null
+      return this.jarFile.getInputStream(entry)
+
+      //      val url: URL? = this.javaClass.classLoader.getResource(path)
+      //      if (url == null) {
+      //        println("url is null.")
+      //        null
+      //      } else {
+      //        val connection = url.openConnection()
+      //        connection.useCaches = false
+      //        connection.getInputStream()
+      //      }
     } catch (e: IOException) {
-      null
+      e.printStackTrace()
+      return null
     }
   }
 
@@ -150,7 +160,7 @@ class Plugin(private val file: File) {
       try {
         for (module in modulesToLoad) {
           if (loadModule(module)) {
-            modulesToStart.add(module)
+            modulesToEnable.add(module)
             modulesLoaded.add(module)
           }
         }
@@ -162,30 +172,30 @@ class Plugin(private val file: File) {
   }
 
   /** TODO: Document. */
-  internal fun startModules() {
+  internal fun enableModules() {
     synchronized(this) {
-      for (module in modulesToStart) if (startModule(module)) modulesStarted.add(module)
-      modulesToStart.clear()
+      for (module in modulesToEnable) if (enableModule(module)) modulesEnabled.add(module)
+      modulesToEnable.clear()
     }
   }
 
   /** TODO: Document. */
-  internal fun updateModules(delta: Long) {
+  internal fun tickModules(delta: Long) {
     synchronized(this) {
       if (modulesToLoad.size > 0) load()
-      if (modulesToStart.size > 0) startModules()
-      for (module in modulesStarted) {
-        if (!module.started) {
-          modulesStopped.add(module)
+      if (modulesToEnable.size > 0) enableModules()
+      for (module in modulesEnabled) {
+        if (!module.enabled) {
+          modulesDisabled.add(module)
           continue
         }
-        updateModule(module, delta)
+        tickModule(module, delta)
       }
-      for (module in modulesStarted) if (!module.started) modulesStopped.add(module)
+      for (module in modulesEnabled) if (!module.enabled) modulesDisabled.add(module)
       for (module in modulesLoaded) if (!module.loaded) modulesUnloaded.add(module)
-      if (modulesStopped.size > 0) {
-        for (module in modulesStopped) modulesStarted.remove(module)
-        modulesStopped.clear()
+      if (modulesDisabled.size > 0) {
+        for (module in modulesDisabled) modulesEnabled.remove(module)
+        modulesDisabled.clear()
       }
       if (modulesUnloaded.size > 0) {
         for (module in modulesUnloaded) modulesLoaded.remove(module)
@@ -195,15 +205,15 @@ class Plugin(private val file: File) {
   }
 
   /** TODO: Document. */
-  internal fun stopModules() {
+  internal fun disableModules() {
     synchronized(this) {
-      for (module in modulesStarted) {
-        if (module.loaded && module.started) {
-          stopModule(module)
+      for (module in modulesEnabled) {
+        if (module.loaded && module.enabled) {
+          disableModule(module)
           modulesToUnload.add(module)
         }
       }
-      modulesStarted.clear()
+      modulesEnabled.clear()
     }
   }
 
@@ -251,8 +261,8 @@ class Plugin(private val file: File) {
   }
 
   private fun loadModule(module: Module): Boolean {
-    if (module.started) {
-      Sledgehammer.logError("Module has already loaded and has started, and cannot be loaded.")
+    if (module.enabled) {
+      Sledgehammer.logError("Module has already loaded and has enabled, and cannot be loaded.")
       return true
     }
     if (module.loaded) {
@@ -269,52 +279,52 @@ class Plugin(private val file: File) {
     return false
   }
 
-  private fun startModule(module: Module): Boolean {
+  private fun enableModule(module: Module): Boolean {
     if (!module.loaded) {
-      Sledgehammer.logError("Module ${module.properties.name} is not loaded and cannot be started.")
+      Sledgehammer.logError("Module ${module.properties.name} is not loaded and cannot be enabled.")
       return false
     }
-    if (module.started) {
-      Sledgehammer.logError("Module ${module.properties.name} has already started.")
+    if (module.enabled) {
+      Sledgehammer.logError("Module ${module.properties.name} has already enabled.")
       return true
     }
     try {
-      Sledgehammer.log("Starting module ${module.properties.name}.")
-      module.start()
+      Sledgehammer.log("Enabling module ${module.properties.name}.")
+      module.enable()
       return true
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to start Module: ${module.properties.name}", e)
+      Sledgehammer.logError("Failed to enable Module: ${module.properties.name}", e)
       if (module.loaded) unloadModule(module)
     }
     return false
   }
 
-  private fun updateModule(module: Module, delta: Long): Boolean {
+  private fun tickModule(module: Module, delta: Long): Boolean {
     try {
-      module.update(delta)
+      module.tick(delta)
       return true
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to update Module: ${module.properties.name}", e)
+      Sledgehammer.logError("Failed to tick Module: ${module.properties.name}", e)
       if (module.loaded) unloadModule(module)
     }
     return false
   }
 
-  private fun stopModule(module: Module) {
+  private fun disableModule(module: Module) {
     if (!module.loaded) {
-      Sledgehammer.logError("Module ${module.properties.name} is not loaded and cannot be stopped.")
+      Sledgehammer.logError("Module ${module.properties.name} is not loaded and cannot be disabled.")
       return
     }
-    if (!module.started) {
-      Sledgehammer.logError("Module ${module.properties.name} has not started and cannot be stopped.")
+    if (!module.enabled) {
+      Sledgehammer.logError("Module ${module.properties.name} has not enabled and cannot be disabled.")
       return
     }
     try {
-      Sledgehammer.log("Stopping module ${module.properties.name}.")
+      Sledgehammer.log("Disabling module ${module.properties.name}.")
       Events.unregister(module.id)
-      module.stop()
+      module.disable()
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to stop Module: ${module.properties.name}", e)
+      Sledgehammer.logError("Failed to disable Module: ${module.properties.name}", e)
       if (module.loaded) unloadModule(module)
     }
   }
@@ -325,7 +335,7 @@ class Plugin(private val file: File) {
       return
     }
     try {
-      if (module.started) stopModule(module)
+      if (module.enabled) disableModule(module)
       Sledgehammer.log("Unloading module ${module.properties.name}.")
       // Just in-case a module tries to register listeners between stopping and unloading.
       Events.unregister(module.id)
@@ -370,14 +380,12 @@ class Plugin(private val file: File) {
       val url = fileJar.toURI().toURL()
       val urls = arrayOf(url)
       val loader: ClassLoader = URLClassLoader(urls)
-      val listClasses: MutableList<String> = java.util.ArrayList()
+      val listClasses = ArrayList<String>()
       val jarFile = JarFile(fileJar)
       val e: Enumeration<*> = jarFile.entries()
       while (e.hasMoreElements()) {
         val entry = e.nextElement() as JarEntry
-        if (entry.isDirectory || !entry.name.endsWith(".class")) {
-          continue
-        }
+        if (entry.isDirectory || !entry.name.endsWith(".class")) continue
         var className = entry.name.substring(0, entry.name.length - 6)
         className = className.replace('/', '.')
         listClasses.add(className)
@@ -432,8 +440,8 @@ class Plugin(private val file: File) {
     val description: String?
 
     init {
-      require(cfg.isString("name")) { """The "name" field is not defined in the plugin.yml.""" }
-      require(cfg.isString("version")) { """The "version" field is not defined in the plugin.yml.""" }
+      require(cfg.contains("name")) { """The "name" field is not defined in the plugin.yml.""" }
+      require(cfg.contains("version")) { """The "version" field is not defined in the plugin.yml.""" }
       require(cfg.isSection("modules")) { """The "modules" section is not defined in the plugin.yml.""" }
 
       name = cfg.getString("name")

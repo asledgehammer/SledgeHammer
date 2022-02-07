@@ -1,0 +1,9 @@
+name: 'ExamplePlugin'
+version: '1.0_0'
+description: 'An example plugin for Sledgehammer.'
+modules:
+  ExampleModule:
+    client_module_id: 'example_module'
+    version: '1.0_0'
+    description: 'An example module for ExamplePlugin.'
+    class: 'com.asledgehammer.sledgehammer.exampleplugin.examplemodule.ExampleModule'
