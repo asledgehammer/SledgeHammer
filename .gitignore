@@ -1,6 +1,3 @@
-# Hide decompiled code for legal reasons.
-craftboid/
-
 # Hide all build files.
 build/
 
@@ -18,12 +15,8 @@ gradlew.bat
 # Project Zomboid
 lib/*.*
 
-# Craftboid exclusion
-!lib/craftboid/
+# CraftHammer exclusion
+!lib/crafthammer/
 
 # Compiles JARs from Gradle subprojects.
 /bin/
-
-# All distributed class files goes here.
-_dist/client
-_dist/server

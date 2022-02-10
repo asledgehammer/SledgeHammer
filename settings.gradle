@@ -1,12 +1,4 @@
 rootProject.name = 'sledgehammer'
 
-// Private repository apart from main project. (Legal reasons)
-include ':cfg'
-
-include ':craftboid'
-include ':craftboid:client_security'
-
 include ':sledgehammer'
-include ':sledgehammer:example_plugin'
-
-include ':woodglue'
+include ':example_plugin'

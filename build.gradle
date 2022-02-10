@@ -6,17 +6,14 @@ plugins {
 project.ext.set('GROUP_NAME', 'com.asledgehammer')
 project.ext.set('PZ_VERSION', '41.65')
 
-project.ext.set('CRAFTBOID_VERSION', '1.0.5_BETA_2')
-project.ext.set('CRAFTBOID_JAR_NAME', 'Craftboid_PZ-' + project.PZ_VERSION + '_' + project.CRAFTBOID_VERSION)
+project.ext.set('CRAFTHAMMER_VERSION', '1.0.5_BETA_2')
+project.ext.set('CRAFTHAMMER_JAR_NAME', 'CraftHammer_PZ-' + project.PZ_VERSION + '_' + project.CRAFTHAMMER_VERSION)
 
 project.ext.set('CFG_VERSION', '1.0.0')
 project.ext.set('CFG_JAR_NAME', 'CFG_' + project.CFG_VERSION)
 
 project.ext.set('SLEDGEHAMMER_VERSION', '1.0.0')
 project.ext.set('SLEDGEHAMMER_JAR_NAME', 'Sledgehammer_PZ-' + project.PZ_VERSION + '_' + project.SLEDGEHAMMER_VERSION)
-
-project.ext.set('WOODGLUE_VERSION', '1.0.0')
-project.ext.set('WOODGLUE_JAR_NAME', 'WoodGlue_PZ-' + project.PZ_VERSION + '_' + project.WOODGLUE_VERSION)
 
 subprojects {
 

@@ -26,8 +26,7 @@ dependencies {
     implementation 'org.yaml:snakeyaml:1.9'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-    compileOnly files('../lib/craftboid/' + project.CRAFTBOID_JAR_NAME + '.jar')
-    compileOnly project(':cfg')
+    compileOnly files('../lib/craftboid/' + project.CRAFTHAMMER_JAR_NAME + '.jar')
 }
 
 test {
