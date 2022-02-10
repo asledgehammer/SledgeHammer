@@ -1,6 +1,6 @@
 package com.asledgehammer.sledgehammer
 
-import com.asledgehammer.craftboid.api.CraftHook
+import com.asledgehammer.craftboid.api.hook.CraftHook
 import com.asledgehammer.craftboid.util.ANSIUtils
 import com.asledgehammer.sledgehammer.event.Events
 import com.asledgehammer.sledgehammer.plugin.Plugins
