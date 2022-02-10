@@ -2,7 +2,7 @@
 
 package com.asledgehammer.sledgehammer.plugin
 
-import com.asledgehammer.framework.cfg.CFGSection
+import com.asledgehammer.crafthammer.util.cfg.CFGSection
 import com.asledgehammer.sledgehammer.Sledgehammer
 import java.io.File
 import java.util.*

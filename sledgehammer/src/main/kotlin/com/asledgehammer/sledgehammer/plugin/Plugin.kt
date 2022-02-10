@@ -2,10 +2,10 @@
 
 package com.asledgehammer.sledgehammer.plugin
 
-import com.asledgehammer.framework.cfg.CFGSection
-import com.asledgehammer.framework.cfg.YamlFile
+import com.asledgehammer.crafthammer.api.event.Events
+import com.asledgehammer.crafthammer.util.cfg.YamlFile
+import com.asledgehammer.crafthammer.util.cfg.CFGSection
 import com.asledgehammer.sledgehammer.Sledgehammer
-import com.asledgehammer.sledgehammer.event.Events
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException

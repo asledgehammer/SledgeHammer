@@ -1,15 +1,11 @@
 plugins {
     id 'java'
     id 'org.jetbrains.kotlin.jvm'
+    id 'maven-publish'
 }
 
 group 'com.asledgehammer'
 version '1.0.0'
-
-configurations {
-    shade
-    compile.extendsFrom shade
-}
 
 compileJava.options.encoding = 'UTF-8'
 jar.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -20,30 +16,21 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-
-    implementation 'org.yaml:snakeyaml:1.9'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-
-    compileOnly files('../lib/craftboid/' + project.CRAFTHAMMER_JAR_NAME + '.jar')
-}
-
-test {
-    useJUnitPlatform()
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0"
+    implementation "com.asledgehammer.crafthammer:CraftHammer:1.0.5_BETA_2"
 }
 
 jar {
-    baseName = project.SLEDGEHAMMER_JAR_NAME
-    version = null
-    configurations.shade.each { dep ->
-        from(project.zipTree(dep)) {
-            exclude 'META-INF', 'META-INF/**' , '**/about.html', '*/about.html', 'about.html'
-        }
-    }
+    baseName "SledgeHammer"
 }
 
-task copyJarToLib(type: Copy) {
-    from 'build/libs/' + project.SLEDGEHAMMER_JAR_NAME + '.jar'
-    into '../bin/'
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            artifactId = 'SledgeHammer'
+            version = project.version
+            from components.java
+        }
+    }
 }
