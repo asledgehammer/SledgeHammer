@@ -1,4 +1,0 @@
-rootProject.name = 'sledgehammer'
-
-include ':sledgehammer'
-include ':example_plugin'

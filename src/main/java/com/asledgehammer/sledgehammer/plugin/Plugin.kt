@@ -100,20 +100,20 @@ class Plugin(private val file: File) {
    * Saves a resource from the Jar File to the destination path.
    *
    * @param path The String path in the Jar File.
-   * @param destPath The String path to save to.
+   * @param dstPath The String path to save to.
    */
-  fun saveResourceAs(path: String, destPath: String) {
-    saveResourceAs(path, File(destPath))
+  fun saveResourceAs(path: String, dstPath: String) {
+    saveResourceAs(path, File(dstPath))
   }
 
   /**
    * Saves a resource from the Jar File to the destination path.
    *
    * @param path The String path in the Jar File.
-   * @param dest The File destination to save to.
+   * @param dst The File destination to save to.
    */
-  fun saveResourceAs(path: String, dest: File) {
-    write(path, dest)
+  fun saveResourceAs(path: String, dst: File) {
+    write(path, dst)
   }
 
   /**
@@ -248,7 +248,7 @@ class Plugin(private val file: File) {
   private fun instantiateModule(properties: Module.Properties): Module {
     try {
       val classToLoad = Class.forName(properties.location, true, classLoader)
-      val module = classToLoad.newInstance() as Module
+      val module = classToLoad.getConstructor().newInstance() as Module
       module.properties = properties
       module.plugin = this
       module.directory = File(directory, module.properties.name + File.separator)
