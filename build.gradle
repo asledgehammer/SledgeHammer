@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.asledgehammer'
-version '1.0.0'
+version project.PZ_VERSION + '__1.0.0'
 
 repositories {
     mavenCentral()
