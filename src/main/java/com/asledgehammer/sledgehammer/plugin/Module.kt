@@ -153,6 +153,14 @@ open class Module {
     plugin.saveResourceAs(path, filePath)
   }
 
+  fun log(vararg objects: Any) {
+    plugin.log(*objects)
+  }
+
+  fun logError(message: String, cause: Throwable? = null) {
+    plugin.logError(message, cause)
+  }
+
   /**
    * TODO: Document.
    *

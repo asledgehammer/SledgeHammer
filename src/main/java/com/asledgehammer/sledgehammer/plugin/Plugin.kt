@@ -372,6 +372,14 @@ class Plugin(private val file: File) {
     }
   }
 
+  fun log(vararg objects: Any) {
+    Sledgehammer.log(*objects)
+  }
+
+  fun logError(message: String, cause: Throwable? = null) {
+    Sledgehammer.logError(message, cause)
+  }
+
   companion object {
 
     /** TODO: Document. */

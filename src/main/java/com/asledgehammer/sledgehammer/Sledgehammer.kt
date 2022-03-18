@@ -37,7 +37,7 @@ class Sledgehammer : CraftHook() {
   companion object {
     /** TODO: Document. */
     @JvmStatic
-    fun log(vararg objects: Any?) = CraftHammer.log(objects)
+    fun log(vararg objects: Any?) = CraftHammer.log(*objects)
 
     /** TODO: Document. */
     @JvmStatic
@@ -46,6 +46,6 @@ class Sledgehammer : CraftHook() {
     /** TODO: Document. */
     @JvmStatic
     @JvmOverloads
-    fun logError(message: String, throwable: Throwable? = null) = CraftHammer.logError(message, throwable)
+    fun logError(message: String, cause: Throwable? = null) = CraftHammer.logError(message, cause)
   }
 }

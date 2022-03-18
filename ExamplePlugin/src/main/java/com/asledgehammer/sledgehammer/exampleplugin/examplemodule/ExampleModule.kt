@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.asledgehammer.sledgehammer.exampleplugin.examplemodule
 
 import com.asledgehammer.sledgehammer.plugin.Module
