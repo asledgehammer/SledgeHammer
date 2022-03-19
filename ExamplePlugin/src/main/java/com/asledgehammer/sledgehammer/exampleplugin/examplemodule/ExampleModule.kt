@@ -23,7 +23,7 @@ class ExampleModule : CraftModule(), EventListener, LogListener {
   }
 
   // Example LogListener method.
-  override fun onLogMessage(entry: LogEntry) {}
+  override fun onLogEntry(entry: LogEntry) {}
 
   // Example event handlers.
   @EventHandler(priority = 1, ignoreCancelled = true)
