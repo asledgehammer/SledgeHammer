@@ -3,9 +3,12 @@
 package com.asledgehammer.sledgehammer.plugin
 
 import com.asledgehammer.crafthammer.api.Hammer
-import com.asledgehammer.crafthammer.util.cfg.YamlFile
 import com.asledgehammer.crafthammer.util.cfg.CFGSection
-import com.asledgehammer.sledgehammer.Sledgehammer
+import com.asledgehammer.crafthammer.util.cfg.YamlFile
+import com.asledgehammer.sledgehammer.SledgeHammer
+import com.asledgehammer.sledgehammer.api.Module
+import com.asledgehammer.sledgehammer.api.Plugin
+import com.asledgehammer.sledgehammer.api.Plugins
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -16,37 +19,29 @@ import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 /**
- * **Plugin** TODO: Document.
+ * **CraftPlugin** TODO: Document.
  *
  * @author Jab
- *
  * @property file
  */
-class Plugin(private val file: File) {
+class CraftPlugin(private val file: File) : Plugin {
 
-  val jarFile = JarFile(file)
+  override val jarFile = JarFile(file)
+  override val id: UUID = UUID.randomUUID()
+  override val modules = HashMap<String, Module>()
+  override val directory: File get() = _directory
+  override val properties: CraftProperties get() = _properties
 
-  /**
-   * The internal ID to use throughout the framework.
-   */
-  val id: UUID = UUID.randomUUID()
+  private lateinit var _directory: File
+  private lateinit var _properties: CraftProperties
 
-  /** TODO: Document. */
-  val modules = HashMap<String, Module>()
-
-  /** TODO: Document. */
-  lateinit var directory: File private set
-
-  /** TODO: Document. */
-  lateinit var properties: Properties
-
-  private val modulesToLoad = ArrayList<Module>()
-  private val modulesLoaded = ArrayList<Module>()
-  private val modulesToEnable = ArrayList<Module>()
-  private val modulesEnabled = ArrayList<Module>()
-  private val modulesDisabled = ArrayList<Module>()
-  private val modulesToUnload = ArrayList<Module>()
-  private val modulesUnloaded = ArrayList<Module>()
+  private val modulesToLoad = ArrayList<CraftModule>()
+  private val modulesLoaded = ArrayList<CraftModule>()
+  private val modulesToEnable = ArrayList<CraftModule>()
+  private val modulesEnabled = ArrayList<CraftModule>()
+  private val modulesDisabled = ArrayList<CraftModule>()
+  private val modulesToUnload = ArrayList<CraftModule>()
+  private val modulesUnloaded = ArrayList<CraftModule>()
   private var classLoader = this.javaClass.classLoader
   private var loadClasses = true
 
@@ -57,9 +52,9 @@ class Plugin(private val file: File) {
         ?: throw RuntimeException("plugin.yml is not found in the plugin: ${file.name}")
       val cfg = YamlFile(null)
       cfg.read(inputStream)
-      properties = Properties(cfg)
+      _properties = CraftProperties(cfg)
       inputStream.close()
-      directory = File(Plugins.directory, properties.name + File.separator)
+      _directory = File(Plugins.instance!!.directory, properties.name + File.separator)
     } catch (e: IOException) {
       e.printStackTrace()
     }
@@ -75,24 +70,21 @@ class Plugin(private val file: File) {
     }
   }
 
-  /** TODO: Document. */
-  fun getModule(name: String): Module? = modules[name]
+  override fun getModule(name: String): Module? = modules[name]
 
-  /** TODO: Document. */
   @Suppress("UNCHECKED_CAST")
-  fun <T : Module?> getModule(clazz: Class<out Module?>? = null): T? {
+  override fun <T : Module?> getModule(clazz: Class<out Module?>): T? {
     var returned: Module? = null
-    for (module: Module in modules.values) {
+    for ((_, module) in modules) {
       if (module.javaClass == clazz) {
         returned = module
         break
       }
     }
-    return returned as T?
+    return if (returned != null) returned as T else null
   }
 
-  /** TODO: Document. */
-  fun saveResource(path: String) {
+  override fun saveResource(path: String) {
     saveResourceAs(path, File(directory, path))
   }
 
@@ -102,7 +94,7 @@ class Plugin(private val file: File) {
    * @param path The String path in the Jar File.
    * @param dstPath The String path to save to.
    */
-  fun saveResourceAs(path: String, dstPath: String) {
+  override fun saveResourceAs(path: String, dstPath: String) {
     saveResourceAs(path, File(dstPath))
   }
 
@@ -112,42 +104,31 @@ class Plugin(private val file: File) {
    * @param path The String path in the Jar File.
    * @param dst The File destination to save to.
    */
-  fun saveResourceAs(path: String, dst: File) {
+  override fun saveResourceAs(path: String, dst: File) {
     write(path, dst)
   }
 
   /**
-   * Set the plug-in to load the classes in the Jar File. This is an option for embedded plug-ins.
+   * Set the plug-in to load the classes in the Jar File. This is an
+   * option for embedded plug-ins.
    *
    * @param flag The Flag to set.
    */
-  fun setLoadClasses(flag: Boolean) {
+  override fun setLoadClasses(flag: Boolean) {
     loadClasses = flag
     if (!loadClasses) classLoader = ClassLoader.getSystemClassLoader()
   }
 
   /**
    * @param path The path of the resource to stream.
-   *
-   * @return Returns a InputStream for a registered File in the given Jar File.
-   *
+   * @return Returns a InputStream for a registered File in the given
+   *     Jar File.
    * @throws IOException Thrown when the InputStream fails to establish.
    */
-  fun getResource(path: String): InputStream? {
+  override fun getResource(path: String): InputStream? {
     try {
-
       val entry = this.jarFile.getEntry(path) ?: return null
       return this.jarFile.getInputStream(entry)
-
-      //      val url: URL? = this.javaClass.classLoader.getResource(path)
-      //      if (url == null) {
-      //        println("url is null.")
-      //        null
-      //      } else {
-      //        val connection = url.openConnection()
-      //        connection.useCaches = false
-      //        connection.getInputStream()
-      //      }
     } catch (e: IOException) {
       e.printStackTrace()
       return null
@@ -227,9 +208,9 @@ class Plugin(private val file: File) {
   }
 
   /** TODO: Document. */
-  internal fun addModule(module: Module) {
+  internal fun addModule(module: CraftModule) {
     val classLiteral: String = getClassLiteral(module.javaClass)
-    for (moduleNext: Module in modulesToLoad) {
+    for (moduleNext: CraftModule in modulesToLoad) {
       val classLiteralNext: String = getClassLiteral(moduleNext.javaClass)
       if (classLiteral.equals(classLiteralNext, ignoreCase = true)) {
         throw IllegalArgumentException(
@@ -241,17 +222,18 @@ class Plugin(private val file: File) {
   }
 
   /** TODO: Document. */
-  internal fun removeModule(module: Module) {
+  internal fun removeModule(module: CraftModule) {
     modules.remove(module.properties.name)
   }
 
-  private fun instantiateModule(properties: Module.Properties): Module {
+  private fun instantiateModule(properties: Module.Properties): CraftModule {
     try {
+
       val classToLoad = Class.forName(properties.location, true, classLoader)
-      val module = classToLoad.getConstructor().newInstance() as Module
-      module.properties = properties
-      module.plugin = this
-      module.directory = File(directory, module.properties.name + File.separator)
+      val module = classToLoad.getConstructor().newInstance() as CraftModule
+      module._properties = properties
+      module._plugin = this
+      module._directory = File(directory, module.properties.name + File.separator)
       modules[properties.name] = module
       modulesToLoad.add(module)
       return module
@@ -260,88 +242,88 @@ class Plugin(private val file: File) {
     }
   }
 
-  private fun loadModule(module: Module): Boolean {
+  private fun loadModule(module: CraftModule): Boolean {
     if (module.enabled) {
-      Sledgehammer.logError("Module has already loaded and has enabled, and cannot be loaded.")
+      SledgeHammer.logError("Module has already loaded and has enabled, and cannot be loaded.")
       return true
     }
     if (module.loaded) {
-      Sledgehammer.logError("Module has already loaded and cannot be loaded.")
+      SledgeHammer.logError("Module has already loaded and cannot be loaded.")
       return true
     }
     try {
-      Sledgehammer.log("Loading module ${module.properties.name}.")
+      SledgeHammer.log("Loading module ${module.properties.name}.")
       module.load()
       return true
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to load Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to load Module: ${module.properties.name}", e)
     }
     return false
   }
 
-  private fun enableModule(module: Module): Boolean {
+  private fun enableModule(module: CraftModule): Boolean {
     if (!module.loaded) {
-      Sledgehammer.logError("Module ${module.properties.name} is not loaded and cannot be enabled.")
+      SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be enabled.")
       return false
     }
     if (module.enabled) {
-      Sledgehammer.logError("Module ${module.properties.name} has already enabled.")
+      SledgeHammer.logError("Module ${module.properties.name} has already enabled.")
       return true
     }
     try {
-      Sledgehammer.log("Enabling module ${module.properties.name}.")
+      SledgeHammer.log("Enabling module ${module.properties.name}.")
       module.enable()
       return true
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to enable Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to enable Module: ${module.properties.name}", e)
       if (module.loaded) unloadModule(module)
     }
     return false
   }
 
-  private fun tickModule(module: Module, delta: Long): Boolean {
+  private fun tickModule(module: CraftModule, delta: Long): Boolean {
     try {
       module.tick(delta)
       return true
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to tick Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to tick Module: ${module.properties.name}", e)
       if (module.loaded) unloadModule(module)
     }
     return false
   }
 
-  private fun disableModule(module: Module) {
+  private fun disableModule(module: CraftModule) {
     if (!module.loaded) {
-      Sledgehammer.logError("Module ${module.properties.name} is not loaded and cannot be disabled.")
+      SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be disabled.")
       return
     }
     if (!module.enabled) {
-      Sledgehammer.logError("Module ${module.properties.name} has not enabled and cannot be disabled.")
+      SledgeHammer.logError("Module ${module.properties.name} has not enabled and cannot be disabled.")
       return
     }
     try {
-      Sledgehammer.log("Disabling module ${module.properties.name}.")
+      SledgeHammer.log("Disabling module ${module.properties.name}.")
       Hammer.instance!!.events.unregister(module.id)
       module.disable()
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to disable Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to disable Module: ${module.properties.name}", e)
       if (module.loaded) unloadModule(module)
     }
   }
 
-  private fun unloadModule(module: Module) {
+  private fun unloadModule(module: CraftModule) {
     if (!module.loaded) {
-      Sledgehammer.logError("Module ${module.properties.name} is not loaded and cannot be unloaded.")
+      SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be unloaded.")
       return
     }
     try {
       if (module.enabled) disableModule(module)
-      Sledgehammer.log("Unloading module ${module.properties.name}.")
+      SledgeHammer.log("Unloading module ${module.properties.name}.")
       // Just in-case a module tries to register listeners between stopping and unloading.
       Hammer.instance!!.events.unregister(module.id)
       module.unload()
     } catch (e: Exception) {
-      Sledgehammer.logError("Failed to unload Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to unload Module: ${module.properties.name}", e)
     }
   }
 
@@ -372,14 +354,6 @@ class Plugin(private val file: File) {
     }
   }
 
-  fun log(vararg objects: Any) {
-    Sledgehammer.log(*objects)
-  }
-
-  fun logError(message: String, cause: Throwable? = null) {
-    Sledgehammer.logError(message, cause)
-  }
-
   companion object {
 
     /** TODO: Document. */
@@ -404,18 +378,18 @@ class Plugin(private val file: File) {
         try {
           loader.loadClass(clazz)
         } catch (error: ClassNotFoundException) {
-          Sledgehammer.logError("Jar->Class not found: $clazz")
+          SledgeHammer.logError("Jar->Class not found: $clazz")
           try {
             ClassLoader.getSystemClassLoader().loadClass(clazz)
           } catch (error2: Exception) {
-            Sledgehammer.logError("System->Class not found: $clazz")
+            SledgeHammer.logError("System->Class not found: $clazz")
           }
         } catch (error: NoClassDefFoundError) {
-          Sledgehammer.logError("Jar->Class not found: $clazz")
+          SledgeHammer.logError("Jar->Class not found: $clazz")
           try {
             ClassLoader.getSystemClassLoader().loadClass(clazz)
           } catch (error2: Exception) {
-            Sledgehammer.logError("System->Class not found: $clazz")
+            SledgeHammer.logError("System->Class not found: $clazz")
           }
         }
       }
@@ -430,22 +404,14 @@ class Plugin(private val file: File) {
    * **Properties** TODO: Document.
    *
    * @author Jab
-   *
    * @property cfg
    */
-  class Properties(val cfg: CFGSection) {
+  class CraftProperties(override val cfg: CFGSection) : Plugin.Properties {
 
-    /** TODO: Document. */
-    val modules = HashMap<String, Module.Properties>()
-
-    /** TODO: Document. */
-    val name: String
-
-    /** TODO: Document. */
-    val version: String
-
-    /** TODO: Document. */
-    val description: String?
+    override val modules = HashMap<String, Module.Properties>()
+    override val name: String
+    override val version: String
+    override val description: String?
 
     init {
       require(cfg.contains("name")) { """The "name" field is not defined in the plugin.yml.""" }
@@ -458,7 +424,7 @@ class Plugin(private val file: File) {
       val modulesCfg = cfg.getSection("modules")
       for (key in modulesCfg.allKeys) {
         require(modulesCfg.isSection(key)) { "The module \"$key\" failed to load. (Not a configured section)" }
-        modules[key] = (Module.Properties(this, key, modulesCfg.getSection(key)))
+        modules[key] = (CraftModule.CraftProperties(this, key, modulesCfg.getSection(key)))
       }
 
       description = if (cfg.isString("description")) {

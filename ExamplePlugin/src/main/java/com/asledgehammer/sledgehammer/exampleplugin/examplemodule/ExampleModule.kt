@@ -11,14 +11,14 @@ import com.asledgehammer.crafthammer.api.event.network.PostLoginEvent
 import com.asledgehammer.crafthammer.api.event.network.PreLoginEvent
 import com.asledgehammer.crafthammer.api.event.player.PlayerJoinEvent
 import com.asledgehammer.crafthammer.api.event.player.PlayerQuitEvent
-import com.asledgehammer.sledgehammer.plugin.Module
+import com.asledgehammer.sledgehammer.plugin.CraftModule
 
 /**
  * **ExampleModule** TODO: Document.
  *
  * @author Jab
  */
-class ExampleModule : Module(), EventListener, LogListener {
+class ExampleModule : CraftModule(), EventListener, LogListener {
 
   override fun onLoad() {
     println("ExampleModule.onLoad()")

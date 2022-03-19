@@ -2,39 +2,44 @@ package com.asledgehammer.sledgehammer
 
 import com.asledgehammer.crafthammer.CraftHammer
 import com.asledgehammer.craftnail.hook.CraftHook
-import com.asledgehammer.sledgehammer.plugin.Plugins
+import com.asledgehammer.sledgehammer.api.Plugins
+import com.asledgehammer.sledgehammer.plugin.CraftPlugins
 import java.io.File
 
-class Sledgehammer : CraftHook() {
+class SledgeHammer : CraftHook() {
 
-  var debug: Boolean = false
+  val plugins: Plugins get() = Plugins.instance!!
 
   override fun onLoad(): Boolean {
-    Plugins.load(File("plugins${File.separator}"))
+    Plugins.instance = CraftPlugins()
+    plugins.load(File("plugins${File.separator}"))
     return true
   }
 
   override fun onEnable(): Boolean {
-    Plugins.enable()
+    plugins.enable()
     return true
   }
 
   override fun onTick(delta: Long) {
-    Plugins.tick()
+    plugins.tick()
   }
 
   override fun onDisable() {
-    Plugins.disable()
+    plugins.disable()
   }
 
   override fun onUnload() {
-    Plugins.unload()
-    Plugins.clear()
+    plugins.unload()
+    plugins.clear()
   }
 
   override fun getId(): String = "sledgehammer"
 
   companion object {
+
+    var DEBUG: Boolean = false
+
     /** TODO: Document. */
     @JvmStatic
     fun log(vararg objects: Any?) = CraftHammer.log(*objects)
