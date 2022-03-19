@@ -5,6 +5,8 @@ package com.asledgehammer.sledgehammer.exampleplugin.examplemodule
 import com.asledgehammer.crafthammer.api.event.EventHandler
 import com.asledgehammer.crafthammer.api.Hammer
 import com.asledgehammer.crafthammer.api.event.EventListener
+import com.asledgehammer.crafthammer.api.event.log.LogListener
+import com.asledgehammer.crafthammer.api.event.log.LogType
 import com.asledgehammer.crafthammer.api.event.network.PostLoginEvent
 import com.asledgehammer.crafthammer.api.event.network.PreLoginEvent
 import com.asledgehammer.crafthammer.api.event.player.PlayerJoinEvent
@@ -16,7 +18,7 @@ import com.asledgehammer.sledgehammer.plugin.Module
  *
  * @author Jab
  */
-class ExampleModule : Module(), EventListener {
+class ExampleModule : Module(), EventListener, LogListener {
 
   override fun onLoad() {
     println("ExampleModule.onLoad()")
@@ -24,7 +26,8 @@ class ExampleModule : Module(), EventListener {
 
   override fun onEnable() {
     println("ExampleModule.onEnable()")
-    Hammer.INSTANCE.events.register(id, this)
+    Hammer.instance!!.events.register(id, this)
+    Hammer.instance!!.addLogListener(id, this)
   }
 
   override fun onTick(delta: Long) {
@@ -32,11 +35,16 @@ class ExampleModule : Module(), EventListener {
 
   override fun onDisable() {
     println("ExampleModule.onDisable()")
-    Hammer.INSTANCE.events.unregister(id)
+    Hammer.instance!!.events.unregister(id)
+    Hammer.instance!!.removeLogListener(id, this)
   }
 
   override fun onUnload() {
     println("ExampleModule.onUnload()")
+  }
+
+  override fun onLogMessage(type: LogType, message: String) {
+    println("onLogMessage(type=${type}, message=\"${message}\")")
   }
 
   @EventHandler
