@@ -2,7 +2,8 @@
 
 package com.asledgehammer.sledgehammer.plugin
 
-import com.asledgehammer.crafthammer.api.event.Events
+import com.asledgehammer.crafthammer.CraftEvents
+import com.asledgehammer.crafthammer.api.Hammer
 import com.asledgehammer.crafthammer.util.cfg.YamlFile
 import com.asledgehammer.crafthammer.util.cfg.CFGSection
 import com.asledgehammer.sledgehammer.Sledgehammer
@@ -321,7 +322,7 @@ class Plugin(private val file: File) {
     }
     try {
       Sledgehammer.log("Disabling module ${module.properties.name}.")
-      Events.unregister(module.id)
+      Hammer.INSTANCE.events.unregister(module.id)
       module.disable()
     } catch (e: Exception) {
       Sledgehammer.logError("Failed to disable Module: ${module.properties.name}", e)
@@ -338,7 +339,7 @@ class Plugin(private val file: File) {
       if (module.enabled) disableModule(module)
       Sledgehammer.log("Unloading module ${module.properties.name}.")
       // Just in-case a module tries to register listeners between stopping and unloading.
-      Events.unregister(module.id)
+      Hammer.INSTANCE.events.unregister(module.id)
       module.unload()
     } catch (e: Exception) {
       Sledgehammer.logError("Failed to unload Module: ${module.properties.name}", e)
