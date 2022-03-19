@@ -2,11 +2,11 @@
 
 package com.asledgehammer.sledgehammer.exampleplugin.examplemodule
 
-import com.asledgehammer.crafthammer.api.event.EventHandler
 import com.asledgehammer.crafthammer.api.Hammer
+import com.asledgehammer.crafthammer.api.event.EventHandler
 import com.asledgehammer.crafthammer.api.event.EventListener
+import com.asledgehammer.crafthammer.api.event.log.LogEntry
 import com.asledgehammer.crafthammer.api.event.log.LogListener
-import com.asledgehammer.crafthammer.api.event.log.LogType
 import com.asledgehammer.crafthammer.api.event.network.PostLoginEvent
 import com.asledgehammer.crafthammer.api.event.network.PreLoginEvent
 import com.asledgehammer.crafthammer.api.event.player.PlayerJoinEvent
@@ -43,8 +43,8 @@ class ExampleModule : Module(), EventListener, LogListener {
     println("ExampleModule.onUnload()")
   }
 
-  override fun onLogMessage(type: LogType, message: String) {
-    println("onLogMessage(type=${type}, message=\"${message}\")")
+  override fun onLogMessage(entry: LogEntry) {
+    println(entry)
   }
 
   @EventHandler
