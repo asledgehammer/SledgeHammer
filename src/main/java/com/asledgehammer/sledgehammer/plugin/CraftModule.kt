@@ -3,6 +3,8 @@
 package com.asledgehammer.sledgehammer.plugin
 
 import com.asledgehammer.crafthammer.CraftHammer
+import com.asledgehammer.crafthammer.api.Hammer
+import com.asledgehammer.crafthammer.api.event.EventListener
 import com.asledgehammer.crafthammer.api.event.log.LogListener
 import com.asledgehammer.crafthammer.util.cfg.CFGSection
 import com.asledgehammer.craftnail.CraftNail
@@ -62,6 +64,7 @@ open class CraftModule : Module {
     if (loaded) {
       try {
         if (enabled) {
+          unloadAllListeners()
           onDisable()
           _enabled = false
         } else {
@@ -84,6 +87,19 @@ open class CraftModule : Module {
       SledgeHammer.logError("Failed to safely unload module.", e)
     }
     return true
+  }
+
+  override fun addEventListener(listener: EventListener) {
+    Hammer.instance!!.events.register(id, listener)
+  }
+
+  override fun removeEventListener(listener: EventListener) {
+    Hammer.instance!!.events.unregister(id, listener)
+  }
+
+  internal fun unloadAllListeners() {
+    Hammer.instance!!.removeLogListeners(id)
+    Hammer.instance!!.events.unregisterAll(id)
   }
 
   /** Fired when the Module is loaded. */
