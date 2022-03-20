@@ -4,6 +4,7 @@ package com.asledgehammer.sledgehammer.plugin
 
 import com.asledgehammer.crafthammer.CraftHammer
 import com.asledgehammer.crafthammer.api.Hammer
+import com.asledgehammer.crafthammer.api.command.CommandListener
 import com.asledgehammer.crafthammer.api.event.EventListener
 import com.asledgehammer.crafthammer.api.event.log.LogListener
 import com.asledgehammer.crafthammer.util.cfg.CFGSection
@@ -54,6 +55,8 @@ open class CraftModule : Module {
     } else {
       SledgeHammer.logError("Module is already enabled.")
     }
+    addEventListener(this)
+    addCommandListener(this)
   }
 
   internal fun tick(delta: Long) {
@@ -97,9 +100,18 @@ open class CraftModule : Module {
     Hammer.instance!!.events.unregister(id, listener)
   }
 
+  override fun addCommandListener(listener: CommandListener) {
+    Hammer.instance!!.commands.register(id, listener)
+  }
+
+  override fun removeCommandListener(listener: CommandListener) {
+    Hammer.instance!!.commands.unregister(id, listener)
+  }
+
   internal fun unloadAllListeners() {
     Hammer.instance!!.removeLogListeners(id)
     Hammer.instance!!.events.unregisterAll(id)
+    Hammer.instance!!.commands.unregisterAll(id)
   }
 
   /** Fired when the Module is loaded. */
