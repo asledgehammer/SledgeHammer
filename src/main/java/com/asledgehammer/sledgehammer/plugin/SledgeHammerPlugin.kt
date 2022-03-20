@@ -2,7 +2,6 @@
 
 package com.asledgehammer.sledgehammer.plugin
 
-import com.asledgehammer.crafthammer.api.Hammer
 import com.asledgehammer.crafthammer.util.cfg.CFGSection
 import com.asledgehammer.crafthammer.util.cfg.YamlFile
 import com.asledgehammer.sledgehammer.SledgeHammer
@@ -251,31 +250,33 @@ class SledgeHammerPlugin(private val file: File) : Plugin {
       SledgeHammer.logError("Module has already loaded and cannot be loaded.")
       return true
     }
+    val name = module.properties.name
     try {
-      SledgeHammer.log("Loading module ${module.properties.name}.")
+      SledgeHammer.log("Loading module $name.")
       module.load()
       return true
     } catch (e: Exception) {
-      SledgeHammer.logError("Failed to load Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to load Module: $name", e)
     }
     return false
   }
 
   private fun enableModule(module: PluginModule): Boolean {
+    val name = module.properties.name
     if (!module.loaded) {
-      SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be enabled.")
+      SledgeHammer.logError("Module $name is not loaded and cannot be enabled.")
       return false
     }
     if (module.enabled) {
-      SledgeHammer.logError("Module ${module.properties.name} has already enabled.")
+      SledgeHammer.logError("Module $name has already enabled.")
       return true
     }
     try {
-      SledgeHammer.log("Enabling module ${module.properties.name}.")
+      SledgeHammer.log("Enabling module $name.")
       module.enable()
       return true
     } catch (e: Exception) {
-      SledgeHammer.logError("Failed to enable Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to enable Module: $name", e)
       if (module.loaded) unloadModule(module)
     }
     return false
@@ -286,44 +287,44 @@ class SledgeHammerPlugin(private val file: File) : Plugin {
       module.tick(delta)
       return true
     } catch (e: Exception) {
-      SledgeHammer.logError("Failed to tick Module: ${module.properties.name}", e)
+      val name = module.properties.name
+      SledgeHammer.logError("Failed to tick Module: $name", e)
       if (module.loaded) unloadModule(module)
     }
     return false
   }
 
   private fun disableModule(module: PluginModule) {
+    val name = module.properties.name
     if (!module.loaded) {
-      SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be disabled.")
+      SledgeHammer.logError("Module $name is not loaded and cannot be disabled.")
       return
     }
     if (!module.enabled) {
-      SledgeHammer.logError("Module ${module.properties.name} has not enabled and cannot be disabled.")
+      SledgeHammer.logError("Module $name has not enabled and cannot be disabled.")
       return
     }
     try {
-      SledgeHammer.log("Disabling module ${module.properties.name}.")
-      Hammer.instance!!.events.unregister(module.id)
+      SledgeHammer.log("Disabling module $name.")
       module.disable()
     } catch (e: Exception) {
-      SledgeHammer.logError("Failed to disable Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to disable Module: $name", e)
       if (module.loaded) unloadModule(module)
     }
   }
 
   private fun unloadModule(module: PluginModule) {
+    val name = module.properties.name
     if (!module.loaded) {
-      SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be unloaded.")
+      SledgeHammer.logError("Module $name is not loaded and cannot be unloaded.")
       return
     }
     try {
       if (module.enabled) disableModule(module)
-      SledgeHammer.log("Unloading module ${module.properties.name}.")
-      // Just in-case a module tries to register listeners between stopping and unloading.
-      Hammer.instance!!.events.unregister(module.id)
+      SledgeHammer.log("Unloading module $name.")
       module.unload()
     } catch (e: Exception) {
-      SledgeHammer.logError("Failed to unload Module: ${module.properties.name}", e)
+      SledgeHammer.logError("Failed to unload Module: $name", e)
     }
   }
 

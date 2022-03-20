@@ -67,8 +67,8 @@ open class PluginModule : Module {
     if (loaded) {
       try {
         if (enabled) {
-          unloadAllListeners()
           onDisable()
+          unloadAllListeners()
           _enabled = false
         } else {
           SledgeHammer.logError("Module is not enabled.")
@@ -84,6 +84,8 @@ open class PluginModule : Module {
     try {
       if (loaded) {
         onUnload()
+        // If the module tries to register listeners between disabling & unloading.
+        unloadAllListeners()
         _loaded = false
       }
     } catch (e: Exception) {
@@ -93,25 +95,66 @@ open class PluginModule : Module {
   }
 
   override fun addEventListener(listener: EventListener) {
-    Hammer.instance!!.events.register(id, listener)
+    Hammer.instance!!.events.add(id, listener)
   }
 
   override fun removeEventListener(listener: EventListener) {
-    Hammer.instance!!.events.unregister(id, listener)
+    Hammer.instance!!.events.remove(id, listener)
   }
 
   override fun addCommandListener(listener: CommandListener) {
-    Hammer.instance!!.commands.register(id, listener)
+    Hammer.instance!!.commands.add(id, listener)
   }
 
   override fun removeCommandListener(listener: CommandListener) {
-    Hammer.instance!!.commands.unregister(id, listener)
+    Hammer.instance!!.commands.remove(id, listener)
   }
 
   internal fun unloadAllListeners() {
     Hammer.instance!!.removeLogListeners(id)
-    Hammer.instance!!.events.unregisterAll(id)
-    Hammer.instance!!.commands.unregisterAll(id)
+    Hammer.instance!!.events.removeAll(id)
+    Hammer.instance!!.commands.removeAll(id)
+  }
+
+  override fun saveResource(path: String, overwrite: Boolean) {
+    val file = File(directory, path)
+    if (!overwrite && file.exists()) return
+    plugin.saveResourceAs(path, file)
+  }
+
+  override fun saveResourceAs(path: String, filePath: String, overwrite: Boolean) {
+    val file = File(directory, filePath)
+    if (!overwrite && file.exists()) return
+    plugin.saveResourceAs(path, file)
+  }
+
+  override fun saveResourceAs(path: String, filePath: File, overwrite: Boolean) {
+    if (!overwrite && filePath.exists()) return
+    plugin.saveResourceAs(path, filePath)
+  }
+
+  override fun addLogListener(listener: LogListener) {
+    CraftHammer.addLogListener(id, listener)
+  }
+
+  override fun removeLogListener(listener: LogListener) {
+    CraftHammer.removeLogListener(id, listener)
+  }
+
+  override fun removeLogListeners() {
+    CraftHammer.removeLogListeners(id)
+  }
+
+  override fun log(list: List<Any?>) {
+    CraftNail.log(list)
+  }
+
+  override fun log(vararg objects: Any?) {
+    CraftNail.log(*objects)
+  }
+
+  override fun logError(message: String, cause: Throwable?) {
+    CraftNail.logError(message, cause)
   }
 
   /** Fired when the Module is loaded. */
@@ -132,48 +175,6 @@ open class PluginModule : Module {
 
   /** Fired when the Module is unloaded. */
   protected open fun onUnload() {}
-
-
-  override fun saveResource(path: String, overwrite: Boolean) {
-    val file = File(directory, path)
-    if (!overwrite && file.exists()) return
-    plugin.saveResourceAs(path, file)
-  }
-
-  override fun saveResourceAs(path: String, filePath: String, overwrite: Boolean) {
-    val file = File(directory, filePath)
-    if (!overwrite && file.exists()) return
-    plugin.saveResourceAs(path, file)
-  }
-
-  override fun saveResourceAs(path: String, filePath: File, overwrite: Boolean) {
-    if (!overwrite && filePath.exists()) return
-    plugin.saveResourceAs(path, filePath)
-  }
-
-  override fun log(list: List<Any?>) {
-    CraftNail.log(list)
-  }
-
-  override fun log(vararg objects: Any?) {
-    CraftNail.log(*objects)
-  }
-
-  override fun logError(message: String, cause: Throwable?) {
-    CraftNail.logError(message, cause)
-  }
-
-  override fun addLogListener(listener: LogListener) {
-    CraftHammer.addLogListener(id, listener)
-  }
-
-  override fun removeLogListener(listener: LogListener) {
-    CraftHammer.removeLogListener(id, listener)
-  }
-
-  override fun removeLogListeners() {
-    CraftHammer.removeLogListeners(id)
-  }
 
   class CraftProperties(
     override val plugin: Plugin.Properties,
