@@ -24,7 +24,7 @@ import java.util.jar.JarFile
  * @author Jab
  * @property file
  */
-class CraftPlugin(private val file: File) : Plugin {
+class SledgeHammerPlugin(private val file: File) : Plugin {
 
   override val jarFile = JarFile(file)
   override val id: UUID = UUID.randomUUID()
@@ -35,13 +35,13 @@ class CraftPlugin(private val file: File) : Plugin {
   private lateinit var _directory: File
   private lateinit var _properties: CraftProperties
 
-  private val modulesToLoad = ArrayList<CraftModule>()
-  private val modulesLoaded = ArrayList<CraftModule>()
-  private val modulesToEnable = ArrayList<CraftModule>()
-  private val modulesEnabled = ArrayList<CraftModule>()
-  private val modulesDisabled = ArrayList<CraftModule>()
-  private val modulesToUnload = ArrayList<CraftModule>()
-  private val modulesUnloaded = ArrayList<CraftModule>()
+  private val modulesToLoad = ArrayList<PluginModule>()
+  private val modulesLoaded = ArrayList<PluginModule>()
+  private val modulesToEnable = ArrayList<PluginModule>()
+  private val modulesEnabled = ArrayList<PluginModule>()
+  private val modulesDisabled = ArrayList<PluginModule>()
+  private val modulesToUnload = ArrayList<PluginModule>()
+  private val modulesUnloaded = ArrayList<PluginModule>()
   private var classLoader = this.javaClass.classLoader
   private var loadClasses = true
 
@@ -208,9 +208,9 @@ class CraftPlugin(private val file: File) : Plugin {
   }
 
   /** TODO: Document. */
-  internal fun addModule(module: CraftModule) {
+  internal fun addModule(module: PluginModule) {
     val classLiteral: String = getClassLiteral(module.javaClass)
-    for (moduleNext: CraftModule in modulesToLoad) {
+    for (moduleNext: PluginModule in modulesToLoad) {
       val classLiteralNext: String = getClassLiteral(moduleNext.javaClass)
       if (classLiteral.equals(classLiteralNext, ignoreCase = true)) {
         throw IllegalArgumentException(
@@ -222,15 +222,15 @@ class CraftPlugin(private val file: File) : Plugin {
   }
 
   /** TODO: Document. */
-  internal fun removeModule(module: CraftModule) {
+  internal fun removeModule(module: PluginModule) {
     modules.remove(module.properties.name)
   }
 
-  private fun instantiateModule(properties: Module.Properties): CraftModule {
+  private fun instantiateModule(properties: Module.Properties): PluginModule {
     try {
 
       val classToLoad = Class.forName(properties.location, true, classLoader)
-      val module = classToLoad.getConstructor().newInstance() as CraftModule
+      val module = classToLoad.getConstructor().newInstance() as PluginModule
       module._properties = properties
       module._plugin = this
       module._directory = File(directory, module.properties.name + File.separator)
@@ -242,7 +242,7 @@ class CraftPlugin(private val file: File) : Plugin {
     }
   }
 
-  private fun loadModule(module: CraftModule): Boolean {
+  private fun loadModule(module: PluginModule): Boolean {
     if (module.enabled) {
       SledgeHammer.logError("Module has already loaded and has enabled, and cannot be loaded.")
       return true
@@ -261,7 +261,7 @@ class CraftPlugin(private val file: File) : Plugin {
     return false
   }
 
-  private fun enableModule(module: CraftModule): Boolean {
+  private fun enableModule(module: PluginModule): Boolean {
     if (!module.loaded) {
       SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be enabled.")
       return false
@@ -281,7 +281,7 @@ class CraftPlugin(private val file: File) : Plugin {
     return false
   }
 
-  private fun tickModule(module: CraftModule, delta: Long): Boolean {
+  private fun tickModule(module: PluginModule, delta: Long): Boolean {
     try {
       module.tick(delta)
       return true
@@ -292,7 +292,7 @@ class CraftPlugin(private val file: File) : Plugin {
     return false
   }
 
-  private fun disableModule(module: CraftModule) {
+  private fun disableModule(module: PluginModule) {
     if (!module.loaded) {
       SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be disabled.")
       return
@@ -311,7 +311,7 @@ class CraftPlugin(private val file: File) : Plugin {
     }
   }
 
-  private fun unloadModule(module: CraftModule) {
+  private fun unloadModule(module: PluginModule) {
     if (!module.loaded) {
       SledgeHammer.logError("Module ${module.properties.name} is not loaded and cannot be unloaded.")
       return
@@ -424,7 +424,7 @@ class CraftPlugin(private val file: File) : Plugin {
       val modulesCfg = cfg.getSection("modules")
       for (key in modulesCfg.allKeys) {
         require(modulesCfg.isSection(key)) { "The module \"$key\" failed to load. (Not a configured section)" }
-        modules[key] = (CraftModule.CraftProperties(this, key, modulesCfg.getSection(key)))
+        modules[key] = (PluginModule.CraftProperties(this, key, modulesCfg.getSection(key)))
       }
 
       description = if (cfg.isString("description")) {

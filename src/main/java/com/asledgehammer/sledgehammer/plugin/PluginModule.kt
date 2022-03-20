@@ -20,7 +20,7 @@ import java.util.*
  *
  * @author Jab
  */
-open class CraftModule : Module {
+open class PluginModule : Module {
 
   internal lateinit var _plugin: Plugin
   internal lateinit var _directory: File

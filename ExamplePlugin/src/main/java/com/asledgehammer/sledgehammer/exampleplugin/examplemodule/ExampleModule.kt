@@ -11,14 +11,14 @@ import com.asledgehammer.crafthammer.api.event.log.LogEntry
 import com.asledgehammer.crafthammer.api.event.log.LogListener
 import com.asledgehammer.crafthammer.api.event.network.PreLoginEvent
 import com.asledgehammer.crafthammer.api.event.player.PlayerJoinEvent
-import com.asledgehammer.sledgehammer.plugin.CraftModule
+import com.asledgehammer.sledgehammer.plugin.PluginModule
 
 /**
  * **ExampleModule** TODO: Document.
  *
  * @author Jab
  */
-class ExampleModule : CraftModule(), EventListener, LogListener {
+class ExampleModule : PluginModule(), EventListener, LogListener {
 
   override fun onEnable() {
     addEventListener(this)

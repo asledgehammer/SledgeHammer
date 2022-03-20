@@ -3,7 +3,6 @@
 package com.asledgehammer.sledgehammer.plugin
 
 import com.asledgehammer.sledgehammer.SledgeHammer
-import com.asledgehammer.sledgehammer.api.Module
 import com.asledgehammer.sledgehammer.api.Plugin
 import com.asledgehammer.sledgehammer.api.Plugins
 import java.io.File
@@ -13,15 +12,15 @@ import java.io.File
  *
  * @author Jab
  */
-class CraftPlugins: Plugins {
+class SledgeHammerPlugins: Plugins {
 
   override val plugins = HashMap<String, Plugin>()
   override var directory: File = File("plugins${File.separator}")
 
-  private val pluginsToLoad = ArrayList<CraftPlugin>()
-  private val pluginsToEnable = ArrayList<CraftPlugin>()
-  private val pluginsEnabled = ArrayList<CraftPlugin>()
-  private val pluginsToUnload = ArrayList<CraftPlugin>()
+  private val pluginsToLoad = ArrayList<SledgeHammerPlugin>()
+  private val pluginsToEnable = ArrayList<SledgeHammerPlugin>()
+  private val pluginsEnabled = ArrayList<SledgeHammerPlugin>()
+  private val pluginsToUnload = ArrayList<SledgeHammerPlugin>()
   private var timeThen = 0L
 
   override fun load(directory: File) {
@@ -38,7 +37,7 @@ class CraftPlugins: Plugins {
       for (jar in plugins.filter { file -> file.isFile && file.extension.equals("jar", true) }) {
         try {
           require(jar.exists()) { "Jar file not found: ${jar.absolutePath}" }
-          val plugin = CraftPlugin(jar)
+          val plugin = SledgeHammerPlugin(jar)
           plugin.init()
           pluginsToLoad.add(plugin)
           loadedModules += plugin.modules.size
