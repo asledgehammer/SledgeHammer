@@ -322,7 +322,8 @@ class Plugin(private val file: File) {
     }
     try {
       Sledgehammer.log("Disabling module ${module.properties.name}.")
-      Hammer.INSTANCE.events.unregister(module.id)
+      // FIXME
+      //Hammer.INSTANCE.events.unregister(module.id)
       module.disable()
     } catch (e: Exception) {
       Sledgehammer.logError("Failed to disable Module: ${module.properties.name}", e)
@@ -339,7 +340,8 @@ class Plugin(private val file: File) {
       if (module.enabled) disableModule(module)
       Sledgehammer.log("Unloading module ${module.properties.name}.")
       // Just in-case a module tries to register listeners between stopping and unloading.
-      Hammer.INSTANCE.events.unregister(module.id)
+      // FIXME
+      // Hammer.INSTANCE.events.unregister(module.id)
       module.unload()
     } catch (e: Exception) {
       Sledgehammer.logError("Failed to unload Module: ${module.properties.name}", e)
